@@ -1,5 +1,6 @@
 export const STORAGE_KEYS = {
   DARK_MODE: "focus_dark_mode",
+  ZEN_MODE: "focus_zen_mode",
   SOUND_SETTINGS: "focus_sound_settings",
   PROJECTS: "focus_projects_v1",
   SESSIONS: "focus_sessions_v1",
