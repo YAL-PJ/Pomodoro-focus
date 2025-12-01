@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SS6WZL8VTK"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-SS6WZL8VTK');
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- SEO Meta Tags (from Netlify version) -->
+  <title>Focus Pomodoro Timer - Free Online Pomodoro Timer for Deep Work</title>
+  <meta name="description" content="A beautifully designed, minimalist Pomodoro timer with dark mode, sounds and feedback. Stay focused and boost your productivity – free, no sign up.">
+  <meta name="keywords" content="pomodoro timer, focus timer, online pomodoro, productivity timer, study timer">
+  <meta name="author" content="Focus Pomadoro">
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://focus-pomadoro.com/">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://focus-pomadoro.com/">
+  <meta property="og:title" content="Focus Pomodoro Timer - Beautiful & Simple Time Management">
+  <meta property="og:description" content="Use a clean, distraction-free Pomodoro timer to stay focused and productive.">
+  <meta property="og:image" content="https://focus-pomadoro.com/og-image.png">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:url" content="https://focus-pomadoro.com/">
+  <meta name="twitter:title" content="Focus Pomodoro Timer - Beautiful & Simple Time Management">
+  <meta name="twitter:description" content="Minimal Pomodoro timer with dark mode and sounds.">
+  <meta name="twitter:image" content="https://focus-pomadoro.com/og-image.png">
+
+  <!-- Favicon (inline tomato emoji, from Netlify version) -->
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🍅</text></svg>"
+  >
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- Theme Color -->
+  <meta name="theme-color" content="#ffffff">
+
+  <!-- App styles -->
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+  <div id="app" class="app">
+    <main class="layout">
+      <!-- LEFT SIDEBAR: brand + projects + tasks -->
+      <aside class="layout-sidebar layout-sidebar-left">
+        <section class="sidebar-card">
+          <header class="sidebar-header brand-header">
+            <div class="brand-title">
+              <h1 class="logo">FOCUS</h1>
+              <span class="logo-sub">Pomodoro timer</span>
+            </div>
+          </header>
+
+          <div class="sidebar-controls-row">
+            <button id="darkModeToggle" class="icon-btn" aria-label="Toggle dark / light mode">
+              🌙
+            </button>
+
+            <div class="sound-wrapper">
+              <button id="soundToggle" class="icon-btn" aria-label="Sound settings">
+                🔔
+              </button>
+              <div id="soundSettings" class="sound-settings" role="dialog" aria-label="Sound settings">
+                <h3>Sound</h3>
+                <label class="sound-row">
+                  <span>Master</span>
+                  <input id="masterSoundToggle" type="checkbox" />
+                </label>
+                <label class="sound-row">
+                  <span>Tick</span>
+                  <input id="tickSoundToggle" type="checkbox" />
+                </label>
+                <label class="sound-row">
+                  <span>Happy tick (10s)</span>
+                  <input id="happyTickSoundToggle" type="checkbox" />
+                </label>
+                <label class="sound-row">
+                  <span>Every minute</span>
+                  <input id="minuteSoundToggle" type="checkbox" />
+                </label>
+                <label class="sound-row">
+                  <span>Every 5 minutes</span>
+                  <input id="fiveMinuteSoundToggle" type="checkbox" />
+                </label>
+                <label class="sound-row">
+                  <span>Completion</span>
+                  <input id="completionSoundToggle" type="checkbox" />
+                </label>
+              </div>
+            </div>
+
+            <button id="feedbackToggle" class="icon-btn" aria-label="Feedback">
+              💬
+            </button>
+
+            <div class="settings-wrapper" aria-label="Durations">
+              <button
+                class="icon-btn settings-icon"
+                type="button"
+                aria-label="Adjust timer durations"
+                tabindex="0"
+              >
+                ⚙️
+              </button>
+              <section class="settings-row">
+                <label>
+                  Work
+                  <input id="workDuration" type="number" min="1" max="60" value="25" /> min
+                </label>
+                <label>
+                  Short
+                  <input id="shortDuration" type="number" min="1" max="30" value="5" /> min
+                </label>
+                <label>
+                  Long
+                  <input id="longDuration" type="number" min="1" max="60" value="15" /> min
+                </label>
+              </section>
+            </div>
+          </div>
+        </section>
+
+        <!-- Projects select + table + archive -->
+        <section class="projects-table-card" aria-label="Projects overview">
+          <header class="projects-table-header">
+            <h2>Projects</h2>
+          </header>
+
+          <div class="project-row combined-project-row">
+            <select id="projectSelect" class="project-select" aria-label="Select project"></select>
+          </div>
+
+          <div class="projects-table-wrapper">
+            <table class="projects-table">
+              <thead>
+                <tr>
+                  <th>Project</th>
+                  <th>Today</th>
+                  <th>Overall</th>
+                  <th>Goal (today)</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="projectsTableBody"></tbody>
+            </table>
+          </div>
+
+          <!-- archived projects toggle + table -->
+          <div class="archived-toggle-row">
+            <button id="toggleArchivedBtn" class="link-btn" type="button">
+              Show archived projects
+            </button>
+          </div>
+
+          <div id="archivedSection" class="archived-section">
+            <div class="projects-table-wrapper archived-wrapper">
+              <table class="projects-table">
+                <thead>
+                  <tr>
+                    <th>Project</th>
+                    <th>Today</th>
+                    <th>Overall</th>
+                    <th>Goal (today)</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="archivedProjectsTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tasks card moved here from the right sidebar -->
+        <section class="sidebar-card">
+          <header class="sidebar-header">
+            <h2>Tasks</h2>
+          </header>
+
+          <ul class="tasks-list" id="tasksList"></ul>
+
+          <div class="tasks-archived-toggle-row">
+            <button id="toggleTasksArchivedBtn" class="link-btn" type="button">
+              Show archived tasks
+            </button>
+          </div>
+
+          <div id="tasksArchivedSection" class="tasks-archived-section">
+            <ul class="tasks-list archived" id="archivedTasksList"></ul>
+          </div>
+        </section>
+      </aside>
+
+      <!-- CENTER: timer + today -->
+      <section class="layout-main">
+        <div class="now-working">
+          Working now on: <span id="currentProjectName">General</span>
+        </div>
+
+        <!-- Today summary in center -->
+        <section class="sidebar-card today-card">
+          <header class="sidebar-header">
+            <h2>Today</h2>
+          </header>
+
+          <div id="completedCount" class="completed-count">
+            0 Pomodoros today
+          </div>
+
+          <div class="daily-progress">
+            <div id="dailyGoalLabel" class="daily-goal-label">
+              0 / 4 Pomodoros
+            </div>
+            <div class="daily-bar">
+              <div id="dailyBarFill" class="daily-bar-fill"></div>
+            </div>
+            <div id="projectBreakdown" class="project-breakdown">
+              No sessions yet today.
+            </div>
+          </div>
+        </section>
+
+        <header class="header"></header>
+
+        <!-- Timer card -->
+        <section class="timer-card">
+          <div class="timer-circle" id="timerCircle" role="timer" aria-label="Pomodoro timer">
+            <div class="tomato-crown" aria-hidden="true">
+              <span class="crown">👑</span>
+              <span class="tomato">🍅</span>
+            </div>
+
+            <svg class="progress-ring" width="320" height="320" aria-hidden="true">
+              <defs>
+                <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#f97316" />
+                  <stop offset="50%" stop-color="#facc15" />
+                  <stop offset="100%" stop-color="#ec4899" />
+                </linearGradient>
+              </defs>
+              <circle
+                class="background-circle"
+                cx="160"
+                cy="160"
+                r="140"
+                stroke-width="6"
+                fill="transparent"
+              ></circle>
+              <circle
+                class="progress-ring__circle"
+                cx="160"
+                cy="160"
+                r="140"
+                stroke-width="6"
+                fill="transparent"
+              ></circle>
+            </svg>
+
+            <div class="timer-content">
+              <!-- kept for JS, hidden in CSS if needed -->
+              <div id="modeLabel" class="mode-label" aria-hidden="true"></div>
+
+              <div id="timeDisplay" class="time-display" aria-live="polite" aria-atomic="true">
+                25:00
+              </div>
+
+              <button id="startBtn" class="primary-btn" aria-label="Start timer">▶</button>
+
+              <div id="controls" class="controls">
+                <button id="pauseBtn" type="button">
+                  ⏸ Pause
+                </button>
+                <button id="resetBtn" type="button">
+                  ↺ Reset
+                </button>
+              </div>
+
+              <div id="tomatoCelebration" class="tomato-celebration" aria-hidden="true">
+                🍅
+              </div>
+            </div>
+          </div>
+
+          <nav class="mode-selector" role="tablist" aria-label="Timer modes">
+            <button
+              class="mode-btn active"
+              data-mode="work"
+              role="tab"
+              aria-selected="true"
+            >
+              Work
+            </button>
+            <button class="mode-btn" data-mode="short" role="tab" aria-selected="false">
+              Short break
+            </button>
+            <button class="mode-btn" data-mode="long" role="tab" aria-selected="false">
+              Long break
+            </button>
+          </nav>
+        </section>
+      </section>
+
+      <!-- FULL-WIDTH PROGRESS GRAPH -->
+      <section class="layout-progress">
+        <div class="progress-graph-card">
+          <header class="progress-graph-header">
+            <h2>Progress</h2>
+            <span class="progress-graph-subtitle">
+              Focused minutes over the last 7 days
+            </span>
+          </header>
+
+          <div id="progressGraph" class="progress-graph"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Feedback modal -->
+  <div id="feedbackModal" class="modal">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-panel">
+      <button class="modal-close" type="button" data-close aria-label="Close">✖</button>
+      <h2 class="modal-title">Feedback</h2>
+      <iframe
+        class="feedback-frame"
+        src="https://docs.google.com/forms/d/e/1FAIpQLSdpomgifmu-pJkPiOUODza9TynaUf3xhDb54rQyyjN0Jkqa-A/viewform?embedded=true"
+        loading="lazy"
+      >
+        Loading…
+      </iframe>
+    </div>
+  </div>
+
+  <!-- App logic -->
+  <script type="module" src="js/main.js"></script>
+
+  <!-- JSON-LD Structured Data (from Netlify version) -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Focus Pomodoro Timer",
+      "description": "A beautifully designed, minimalist Pomodoro timer to boost your productivity",
+      "applicationCategory": "ProductivityApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5",
+        "ratingCount": "1"
+      }
+    }
+  </script>
+</body>
+</html>
