@@ -19,6 +19,7 @@ const shortInput = document.getElementById("shortDuration");
 const longInput = document.getElementById("longDuration");
 
 const darkModeToggle = document.getElementById("darkModeToggle");
+const zenModeToggle = document.getElementById("zenModeToggle");
 const masterSoundToggle = document.getElementById("masterSoundToggle");
 const tickSoundToggle = document.getElementById("tickSoundToggle");
 const happyTickSoundToggle = document.getElementById("happyTickSoundToggle");
@@ -128,6 +129,31 @@ function initDarkMode() {
   const isDark = saved === "true";
   document.body.classList.toggle("dark", isDark);
   darkModeToggle.textContent = isDark ? "☀️" : "🌙";
+}
+
+function updateZenModeUI(isZen) {
+  document.body.classList.toggle("zen-mode", isZen);
+  if (zenModeToggle) {
+    zenModeToggle.classList.toggle("is-active", isZen);
+    zenModeToggle.textContent = isZen ? "🧘‍♀️" : "🧘";
+    zenModeToggle.setAttribute("aria-pressed", String(isZen));
+    zenModeToggle.setAttribute(
+      "title",
+      isZen ? "Exit zen mode" : "Enter zen mode"
+    );
+    zenModeToggle.setAttribute(
+      "aria-label",
+      isZen
+        ? "Exit zen mode and show sidebars"
+        : "Enter zen mode and hide sidebars"
+    );
+  }
+}
+
+function initZenMode() {
+  const saved = localStorage.getItem(STORAGE_KEYS.ZEN_MODE);
+  const isZen = saved === "true";
+  updateZenModeUI(isZen);
 }
 
 function initSoundSettings() {
@@ -815,6 +841,16 @@ darkModeToggle.addEventListener("click", () => {
   localStorage.setItem(STORAGE_KEYS.DARK_MODE, String(isDark));
 });
 
+// zen mode
+
+if (zenModeToggle) {
+  zenModeToggle.addEventListener("click", () => {
+    const isZen = !document.body.classList.contains("zen-mode");
+    updateZenModeUI(isZen);
+    localStorage.setItem(STORAGE_KEYS.ZEN_MODE, String(isZen));
+  });
+}
+
 // sound settings toggles
 
 [
@@ -1195,6 +1231,7 @@ if (feedbackToggle && feedbackModal) {
 // ===== INITIAL RUN =====
 
 initDarkMode();
+initZenMode();
 initSoundSettings();
 renderProjectsSelect();
 syncDurationsFromInputs();
