@@ -26,10 +26,8 @@ const minuteSoundToggle = document.getElementById("minuteSoundToggle");
 const fiveMinuteSoundToggle = document.getElementById("fiveMinuteSoundToggle");
 const completionSoundToggle = document.getElementById("completionSoundToggle");
 
-const completedCountEl = document.getElementById("completedCount");
 const dailyGoalLabel = document.getElementById("dailyGoalLabel");
 const dailyBarFill = document.getElementById("dailyBarFill");
-const projectBreakdownEl = document.getElementById("projectBreakdown");
 const projectSelect = document.getElementById("projectSelect");
 
 const archivedProjectsTableBody = document.getElementById("archivedProjectsTableBody");
@@ -198,16 +196,6 @@ function updateCurrentProjectLabel() {
   }
 }
 
-function updateCompletedCountLabel() {
-  const today = todayKey();
-  const todaysSessions = sessions.filter(
-    s => s.mode === "work" && s.completedAt.slice(0, 10) === today
-  );
-  const count = todaysSessions.length;
-  completedCountEl.textContent =
-    count === 1 ? "1 Pomodoro today" : `${count} Pomodoros today`;
-}
-
 function getProjectStatsById() {
   const today = todayKey();
   const statsById = {};
@@ -260,25 +248,6 @@ function updateDailyProgressUI() {
     const reached = totalGoal > 0 && count >= totalGoal;
     dailyProgressEl.classList.toggle("goal-complete", reached);
   }
-
-  if (!todaysSessions.length) {
-    projectBreakdownEl.textContent = "No sessions yet today.";
-    return;
-  }
-
-  const perProject = {};
-  todaysSessions.forEach(s => {
-    perProject[s.projectId] = (perProject[s.projectId] || 0) + 1;
-  });
-
-  const parts = Object.entries(perProject).map(([projectId, cnt]) => {
-    const project = projects.find(p => p.id === projectId);
-    const name = project ? project.name : "Unknown";
-    const label = cnt === 1 ? "pomodoro" : "pomodoros";
-    return `${name}: ${cnt} ${label}`;
-  });
-
-  projectBreakdownEl.textContent = parts.join(" • ");
 }
 
 function updateProjectsTableUI() {
@@ -683,7 +652,6 @@ function handleTick({ timeLeft, totalTime, mode }) {
   }
 
   handleTickSounds({ timeLeft, totalTime, mode });
-  updateCompletedCountLabel();
 }
 
 function handleModeChange({ mode }) {
@@ -729,7 +697,6 @@ function handleComplete(payload) {
       soundEngine.completion();
     }
 
-    updateCompletedCountLabel();
     updateDailyProgressUI();
     updateProjectsTableUI();
     renderProgressGraphUI();
@@ -1198,7 +1165,6 @@ initDarkMode();
 initSoundSettings();
 renderProjectsSelect();
 syncDurationsFromInputs();
-updateCompletedCountLabel();
 updateDailyProgressUI();
 updateCurrentProjectLabel();
 updateProjectsTableUI();
