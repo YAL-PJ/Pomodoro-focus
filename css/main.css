@@ -309,6 +309,12 @@ body.dark .sound-settings {
   margin-top: 6px;
 }
 
+.timer-card-header {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
 /* big timer */
 
 .timer-circle {
