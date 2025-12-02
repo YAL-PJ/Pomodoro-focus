@@ -53,6 +53,29 @@
   <link rel="stylesheet" href="css/main.css" />
 </head>
 <body>
+  <header class="freemium-bar">
+    <div class="freemium-bar__left">
+      <div class="pill" id="planPill">Basic (free) plan</div>
+      <div class="user-badge" id="userBadge">Guest</div>
+    </div>
+    <div class="freemium-bar__right">
+      <form id="authForm" class="auth-form" aria-label="Save your email to personalize the workspace">
+        <input
+          id="authEmail"
+          type="email"
+          placeholder="name@email.com"
+          aria-label="Email address"
+          required
+        />
+        <button type="submit" class="secondary-btn">Save profile</button>
+      </form>
+      <button id="logoutBtn" class="ghost-btn" type="button">Log out</button>
+      <button class="primary-btn" type="button" data-upgrade-trigger data-upgrade-label="Upgrade to Pro">
+        Upgrade to Pro
+      </button>
+    </div>
+  </header>
+  <div id="freemiumNudge" class="freemium-toast" role="status" aria-live="polite"></div>
   <div id="app" class="app">
     <main class="layout">
       <!-- LEFT SIDEBAR: brand + projects + tasks -->
@@ -166,7 +189,7 @@
             </button>
           </div>
 
-          <div id="archivedSection" class="archived-section">
+          <div id="archivedSection" class="archived-section" data-tier="pro">
             <div class="projects-table-wrapper archived-wrapper">
               <table class="projects-table">
                 <thead>
@@ -198,7 +221,7 @@
             </button>
           </div>
 
-          <div id="tasksArchivedSection" class="tasks-archived-section">
+          <div id="tasksArchivedSection" class="tasks-archived-section" data-tier="pro">
             <ul class="tasks-list archived" id="archivedTasksList"></ul>
           </div>
         </section>
@@ -314,7 +337,7 @@
       </section>
 
       <!-- FULL-WIDTH PROGRESS GRAPH -->
-      <section class="layout-progress">
+      <section class="layout-progress" data-tier="pro">
         <div class="progress-graph-card">
           <header class="progress-graph-header">
             <h2>Progress</h2>
@@ -342,6 +365,45 @@
       >
         Loading…
       </iframe>
+    </div>
+  </div>
+
+  <div id="upgradeModal" class="modal freemium-modal">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-panel">
+      <button class="modal-close" type="button" data-close aria-label="Close">✖</button>
+      <h2 class="modal-title">Focus Pro</h2>
+      <p class="modal-subtitle">Unlock projects, archives, analytics, and cloud sync.</p>
+
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <h3>Basic</h3>
+          <p class="price">$0</p>
+          <ul>
+            <li>Pomodoro timer</li>
+            <li>Simple task list</li>
+            <li>Local storage</li>
+            <li>Light/dark mode</li>
+          </ul>
+          <button class="ghost-btn" data-close type="button">Stay on Basic</button>
+        </div>
+        <div class="pricing-card pricing-card--pro">
+          <h3>Pro</h3>
+          <p class="price">$4.99/mo</p>
+          <ul>
+            <li>Unlimited projects & goals</li>
+            <li>Archives & ideas inbox</li>
+            <li>Analytics & export</li>
+            <li>Cloud sync + real-time updates</li>
+          </ul>
+          <button class="primary-btn" type="button" data-activate-pro data-upgrade-trigger>
+            Start Pro (demo)
+          </button>
+          <button class="secondary-btn" type="button" data-upgrade-trigger>
+            Checkout via Stripe
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
