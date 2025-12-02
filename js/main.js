@@ -1,6 +1,7 @@
 import { PomodoroTimer } from "./timer.js";
 import { STORAGE_KEYS, loadJson, saveJson, todayKey } from "./storage.js";
 import { createSoundEngine } from "./sound.js";
+import { createFreemiumManager } from "./freemium.js";
 
 // DOM refs
 const timeDisplay = document.getElementById("timeDisplay");
@@ -47,7 +48,9 @@ const archivedTasksList = document.getElementById("archivedTasksList");
 const toggleTasksArchivedBtn = document.getElementById("toggleTasksArchivedBtn");
 const tasksArchivedSection = document.getElementById("tasksArchivedSection");
 
-// ===== STATE: PROJECTS, SESSIONS, TASKS =====
+// ===== STATE: FREEMIUM, PROJECTS, SESSIONS, TASKS =====
+
+const freemium = createFreemiumManager();
 
 let projects = loadJson(STORAGE_KEYS.PROJECTS, []);
 if (!projects.length) {
@@ -213,6 +216,15 @@ function renderProjectsSelect() {
   if (projectSelect.options.length > 0) {
     projectSelect.value = activeProjectId;
   }
+}
+
+function isProjectCreationLocked() {
+  const activeProjects = projects.filter(p => !p.archived).length;
+  // free users can keep "General" but need Pro for multiple projects
+  if (activeProjects >= 1 && !freemium.isPro()) {
+    return !freemium.requirePro("Projects & goals");
+  }
+  return false;
 }
 
 function updateCurrentProjectLabel() {
@@ -889,6 +901,8 @@ if (projectsTableBody) {
       if (!name) return;
       const goal = Math.max(0, parseInt(goalInput.value, 10) || 0);
 
+      if (isProjectCreationLocked()) return;
+
       const id = "p-" + Date.now().toString(36);
       projects.push({
         id,
@@ -1200,6 +1214,7 @@ if (feedbackToggle && feedbackModal) {
 initDarkMode();
 initZenMode();
 initSoundSettings();
+freemium.bootstrap();
 renderProjectsSelect();
 syncDurationsFromInputs();
 updateDailyProgressUI();

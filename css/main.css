@@ -57,6 +57,99 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Freemium shell */
+.freemium-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 20px;
+  background: linear-gradient(120deg, rgba(249, 115, 22, 0.12), rgba(236, 72, 153, 0.1));
+  border-bottom: 1px solid var(--border-subtle);
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  backdrop-filter: blur(12px);
+}
+
+.freemium-bar__left,
+.freemium-bar__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.auth-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.auth-form input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  min-width: 210px;
+}
+
+.pill {
+  background: rgba(249, 115, 22, 0.14);
+  color: #9a3412;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  border: 1px solid rgba(249, 115, 22, 0.35);
+}
+
+.pill.pill-pro {
+  background: rgba(59, 130, 246, 0.14);
+  color: #1d4ed8;
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.user-badge {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.14);
+  font-weight: 600;
+}
+
+.user-badge.badge-pro {
+  border-color: rgba(59, 130, 246, 0.5);
+  color: #1d4ed8;
+}
+
+.ghost-btn {
+  background: transparent;
+  border: 1px dashed var(--border-subtle);
+  color: var(--muted);
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.freemium-toast {
+  position: fixed;
+  top: 76px;
+  right: 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow);
+  padding: 12px 16px;
+  border-radius: 12px;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  z-index: 14;
+}
+
+.freemium-toast.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* App layout */
 
 .app {
@@ -1210,6 +1303,24 @@ body.dark .projects-new-goal-input {
   display: flex;
 }
 
+.freemium-modal {
+  display: none;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.freemium-modal.is-visible {
+  display: flex;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.freemium-modal .modal-panel {
+  max-width: 900px;
+  color: var(--text);
+  background: var(--bg-card);
+}
+
 .modal-backdrop {
   position: absolute;
   inset: 0;
@@ -1227,6 +1338,90 @@ body.dark .projects-new-goal-input {
   width: 90%;
   padding: 16px;
   box-shadow: 0 20px 60px rgba(15, 23, 42, 0.95);
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.pricing-card {
+  border: 1px solid var(--border-subtle);
+  border-radius: 18px;
+  padding: 16px;
+  background: var(--bg-card-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pricing-card--pro {
+  border-color: rgba(59, 130, 246, 0.5);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(236, 72, 153, 0.1));
+}
+
+.pricing-card .price {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.pricing-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.pricing-card li::before {
+  content: "✔";
+  margin-right: 8px;
+  color: #22c55e;
+}
+
+.lock-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.92));
+  border-radius: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 16px;
+  z-index: 11;
+}
+
+body.dark .lock-overlay {
+  background: linear-gradient(180deg, rgba(2, 6, 23, 0.92), rgba(2, 6, 23, 0.96));
+}
+
+[data-tier] {
+  position: relative;
+}
+
+.lock-overlay__content {
+  display: grid;
+  gap: 6px;
+  align-items: center;
+}
+
+.lock-overlay__icon {
+  font-size: 1.3rem;
+}
+
+.lock-overlay__cta {
+  border: none;
+  background: linear-gradient(90deg, #f97316, #ec4899);
+  color: #fff;
+  border-radius: 999px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-weight: 700;
+  box-shadow: 0 10px 22px rgba(236, 72, 153, 0.28);
 }
 
 .modal-title {
