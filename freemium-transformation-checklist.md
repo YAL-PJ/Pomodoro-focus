@@ -13,6 +13,7 @@ Use this list to track every step for turning Focus Pomodoro into a freemium pro
 
 ## Phase 2: Authentication
 - [ ] Add Supabase JS client config and wiring to the frontend.
+- [ ] Fix browser config exposure so Supabase URL/key are available and initialize the client in `db.js`.
 - [ ] Build login/signup/forgot-password modals and header entry points; show user menu when authenticated.
 - [ ] Implement auth flows (signup, login, logout, password reset) with session persistence and auto-refresh.
 - [ ] Configure Supabase Auth (email templates, redirect URLs, optional OAuth) and a helper to fetch user profile + subscription status.
