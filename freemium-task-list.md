@@ -13,15 +13,16 @@ Goal: transform Focus Pomodoro from a free timer into a freemium product with Ba
 
 ## Phase 2: Authentication
 - [ ] Add Supabase JS client config and wiring to the frontend.
+- [ ] Fix browser config exposure so Supabase URL/key are available and initialize the client in `db.js`.
 - [ ] Build login/signup/forgot-password modals and header entry points; show user menu when authenticated.
 - [ ] Implement auth flows (signup, login, logout, password reset) with session persistence and auto-refresh.
 - [ ] Configure Supabase Auth (email templates, redirect URLs, optional OAuth) and a helper to fetch user profile + subscription status.
 
 ## Phase 3: Free Tier UI Simplification
-- [ ] Introduce a user state manager and feature-gating helper that marks Pro-only elements.
-- [ ] Tag Pro UI with data attributes and add locked overlays that route to upgrade prompts when clicked.
+- [x] Introduce a user state manager and feature-gating helper that marks Pro-only elements.
+- [x] Tag Pro UI with data attributes and add locked overlays that route to upgrade prompts when clicked.
 - [ ] Create simplified free layout (timer + basic tasks + settings) and hide Pro areas (projects, progress graphs, archives) for free users.
-- [ ] Design upgrade messaging and “what you get with Pro” cards for locked states.
+- [x] Design upgrade messaging and “what you get with Pro” cards for locked states.
 
 ## Phase 4: Pro Feature Implementation
 - [ ] Add data sync layer that saves to Supabase for Pro users and localStorage for Free users.
