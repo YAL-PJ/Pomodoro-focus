@@ -91,6 +91,8 @@ export function createFreemiumManager() {
         removeOverlay(el);
       }
     });
+
+    applyLayoutState();
   }
 
   function showUpgradeModal() {
@@ -185,6 +187,17 @@ export function createFreemiumManager() {
     }
   }
 
+  function applyLayoutState() {
+    const isBasic = !isPro();
+    document.body.classList.toggle("plan-basic", isBasic);
+    document.body.classList.toggle("plan-pro", !isBasic);
+
+    const basicOnlyBlocks = document.querySelectorAll("[data-basic-only]");
+    basicOnlyBlocks.forEach(el => {
+      el.classList.toggle("is-visible", isBasic);
+    });
+  }
+
   function bootstrap() {
     wireUpgradeModal();
     attachUpgradeTriggers();
@@ -199,6 +212,7 @@ export function createFreemiumManager() {
     requirePro,
     isPro,
     setPlan,
+    setEmail,
     showUpgradeModal
   };
 }

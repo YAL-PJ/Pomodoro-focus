@@ -75,6 +75,7 @@
         />
         <button type="submit" class="secondary-btn">Save profile</button>
       </form>
+      <button class="ghost-btn" type="button" data-auth-trigger data-auth-default-tab="login">Sign in</button>
       <button id="logoutBtn" class="ghost-btn" type="button">Log out</button>
       <button class="primary-btn" type="button" data-upgrade-trigger data-upgrade-label="Upgrade to Pro">
         Upgrade to Pro
@@ -84,6 +85,24 @@
   <div id="freemiumNudge" class="freemium-toast" role="status" aria-live="polite"></div>
   <div id="app" class="app">
     <main class="layout">
+      <section class="free-basic-banner" data-basic-only>
+        <div class="free-basic-banner__content">
+          <div>
+            <p class="free-basic-eyebrow">Basic mode</p>
+            <h2>Just the essentials to stay focused.</h2>
+            <p class="free-basic-copy">
+              Use the timer, quick tasks, and sound/settings in a distraction-free layout. Upgrade to Pro anytime
+              to unlock projects, archives, analytics, and cloud sync.
+            </p>
+          </div>
+          <div class="free-basic-actions">
+            <button class="primary-btn" type="button" data-upgrade-trigger>See Pro features</button>
+            <button class="ghost-btn" type="button" data-upgrade-trigger data-upgrade-label="Upgrade to Pro">
+              Upgrade to Pro
+            </button>
+          </div>
+        </div>
+      </section>
       <!-- LEFT SIDEBAR: brand + projects + tasks -->
       <aside class="layout-sidebar layout-sidebar-left">
         <section class="sidebar-card">
@@ -164,7 +183,7 @@
         </section>
 
         <!-- Projects select + table + archive -->
-        <section class="projects-table-card" aria-label="Projects overview">
+        <section class="projects-table-card" aria-label="Projects overview" data-tier="pro">
           <header class="projects-table-header">
             <h2>Projects</h2>
           </header>
@@ -374,6 +393,58 @@
     </div>
   </div>
 
+  <div id="authModal" class="modal freemium-modal auth-modal">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-panel">
+      <button class="modal-close" type="button" data-close aria-label="Close">✖</button>
+      <h2 class="modal-title">Sign in or create an account</h2>
+      <p class="modal-subtitle">Save your focus history, sync across devices, and unlock Pro when you’re ready.</p>
+
+      <div class="auth-tabs">
+        <button class="auth-tab is-active" type="button" data-auth-tab="login">Log in</button>
+        <button class="auth-tab" type="button" data-auth-tab="signup">Create account</button>
+        <button class="auth-tab" type="button" data-auth-tab="reset">Reset password</button>
+      </div>
+
+      <form id="loginForm" class="auth-form is-active" data-auth-view="login">
+        <label>
+          Email
+          <input name="email" type="email" autocomplete="email" required />
+        </label>
+        <label>
+          Password
+          <input name="password" type="password" autocomplete="current-password" required />
+        </label>
+        <div class="auth-actions-inline">
+          <button class="primary-btn" type="submit">Log in</button>
+          <button class="ghost-btn" type="button" data-auth-tab="reset">Need a reset?</button>
+        </div>
+      </form>
+
+      <form id="signupForm" class="auth-form" data-auth-view="signup">
+        <label>
+          Email
+          <input name="email" type="email" autocomplete="email" required />
+        </label>
+        <label>
+          Password
+          <input name="password" type="password" autocomplete="new-password" required />
+        </label>
+        <button class="primary-btn" type="submit">Create account</button>
+        <p class="auth-helper">We’ll send a confirmation link to verify your email.</p>
+      </form>
+
+      <form id="resetForm" class="auth-form" data-auth-view="reset">
+        <label>
+          Email
+          <input name="email" type="email" autocomplete="email" required />
+        </label>
+        <button class="primary-btn" type="submit">Send reset link</button>
+        <p class="auth-helper">We’ll email you a password reset link. Use it to set a new password.</p>
+      </form>
+    </div>
+  </div>
+
   <div id="upgradeModal" class="modal freemium-modal">
     <div class="modal-backdrop" data-close></div>
     <div class="modal-panel">
@@ -405,8 +476,11 @@
           <button class="primary-btn" type="button" data-activate-pro data-upgrade-trigger>
             Start Pro (demo)
           </button>
-          <button class="secondary-btn" type="button" data-upgrade-trigger>
+          <button class="secondary-btn" type="button" data-checkout-plan="price_pro_monthly">
             Checkout via Stripe
+          </button>
+          <button class="ghost-btn" type="button" data-billing-portal>
+            Manage billing
           </button>
         </div>
       </div>
@@ -414,6 +488,7 @@
   </div>
 
   <!-- App logic -->
+  <script src="js/payments.js"></script>
   <script type="module" src="js/main.js"></script>
 
   <!-- JSON-LD Structured Data (from Netlify version) -->
