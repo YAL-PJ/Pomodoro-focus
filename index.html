@@ -374,6 +374,101 @@
           <div id="progressGraph" class="progress-graph"></div>
         </div>
       </section>
+
+      <section class="planning-grid" data-tier="pro">
+        <div class="planning-card">
+          <header class="planning-card__header">
+            <div>
+              <p class="eyebrow">Pro planning</p>
+              <h3>Goals</h3>
+            </div>
+          </header>
+
+          <form id="goalForm" class="stacked-form">
+            <div class="form-row">
+              <label class="sr-only" for="goalTitle">Goal title</label>
+              <input id="goalTitle" type="text" placeholder="Ship feature X" required />
+            </div>
+            <div class="form-grid">
+              <label>
+                Type
+                <select id="goalType">
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="long_term">Long term</option>
+                </select>
+              </label>
+              <label>
+                Target
+                <input id="goalTarget" type="number" min="0" value="4" />
+              </label>
+              <label>
+                Project
+                <select id="goalProjectSelect"></select>
+              </label>
+            </div>
+            <button class="primary-btn" type="submit">Add goal</button>
+          </form>
+
+          <ul id="goalsList" class="goal-list"></ul>
+        </div>
+
+        <div class="planning-card">
+          <header class="planning-card__header">
+            <div>
+              <p class="eyebrow">Ideas inbox</p>
+              <h3>Capture ideas</h3>
+            </div>
+          </header>
+
+          <form id="ideaForm" class="stacked-form">
+            <label class="sr-only" for="ideaContent">Idea</label>
+            <input id="ideaContent" type="text" placeholder="Idea, experiment, or thought" required />
+
+            <div class="form-grid">
+              <label>
+                Priority
+                <select id="ideaPriority">
+                  <option value="low">Low</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </label>
+              <label>
+                Project
+                <select id="ideaProjectSelect"></select>
+              </label>
+            </div>
+
+            <button class="secondary-btn" type="submit">Add idea</button>
+          </form>
+
+          <ul id="ideasList" class="idea-list"></ul>
+        </div>
+
+        <div class="planning-card analytics-card">
+          <header class="planning-card__header">
+            <div>
+              <p class="eyebrow">Analytics</p>
+              <h3>Momentum</h3>
+            </div>
+          </header>
+          <div id="analyticsSummary" class="analytics-summary"></div>
+          <ul id="analyticsProjectList" class="analytics-projects"></ul>
+        </div>
+
+        <div class="planning-card sync-card">
+          <header class="planning-card__header">
+            <div>
+              <p class="eyebrow">Cloud</p>
+              <h3>Sync & backup</h3>
+            </div>
+          </header>
+          <p class="muted">Sync projects, tasks, goals, ideas, and sessions to Supabase when signed in on Pro.</p>
+          <div class="sync-status" id="syncStatusLabel">Waiting to sync…</div>
+          <button class="primary-btn" type="button" id="syncNowBtn">Sync now</button>
+        </div>
+      </section>
     </main>
   </div>
 

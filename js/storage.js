@@ -5,7 +5,10 @@ export const STORAGE_KEYS = {
   PROJECTS: "focus_projects_v1",
   SESSIONS: "focus_sessions_v1",
   ACTIVE_PROJECT: "focus_active_project",
-  TASKS: "focus_tasks_v1"
+  TASKS: "focus_tasks_v1",
+  GOALS: "focus_goals_v1",
+  IDEAS: "focus_ideas_v1",
+  LAST_SYNC: "focus_last_sync_v1"
 };
 
 export function loadJson(key, fallback) {
