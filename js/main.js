@@ -2,7 +2,7 @@ import { PomodoroTimer } from "./timer.js";
 import { STORAGE_KEYS, loadJson, saveJson, todayKey } from "./storage.js";
 import { createSoundEngine } from "./sound.js";
 import { createFreemiumManager } from "./freemium.js";
-import { createSyncManager, mergeCollections } from "./sync.js";
+import { createProBootstrap } from "./pro/bootstrap.js";
 
 // DOM refs
 const timeDisplay = document.getElementById("timeDisplay");
@@ -50,14 +50,6 @@ const toggleTasksArchivedBtn = document.getElementById("toggleTasksArchivedBtn")
 const tasksArchivedSection = document.getElementById("tasksArchivedSection");
 
 // pro planning + sync DOM
-const goalForm = document.getElementById("goalForm");
-const goalsList = document.getElementById("goalsList");
-const goalProjectSelect = document.getElementById("goalProjectSelect");
-
-const ideaForm = document.getElementById("ideaForm");
-const ideasList = document.getElementById("ideasList");
-const ideaProjectSelect = document.getElementById("ideaProjectSelect");
-
 const syncNowBtn = document.getElementById("syncNowBtn");
 const syncStatusLabel = document.getElementById("syncStatusLabel");
 
@@ -125,8 +117,40 @@ let ideas = loadJson(STORAGE_KEYS.IDEAS, []).map(i => ({
   createdAt: i.createdAt || new Date().toISOString()
 }));
 
+function setProjects(nextProjects, { skipSync } = {}) {
+  projects = nextProjects;
+  saveJson(STORAGE_KEYS.PROJECTS, projects);
+  if (!skipSync) queueSyncChanges();
+}
+
+function setTasks(nextTasks, { skipSync } = {}) {
+  tasks = nextTasks;
+  saveJson(STORAGE_KEYS.TASKS, tasks);
+  if (!skipSync) queueSyncChanges();
+}
+
+function setSessions(nextSessions, { skipSync } = {}) {
+  sessions = nextSessions;
+  saveJson(STORAGE_KEYS.SESSIONS, sessions);
+  if (!skipSync) queueSyncChanges();
+}
+
+function setGoals(nextGoals, { skipSync } = {}) {
+  goals = nextGoals;
+  saveJson(STORAGE_KEYS.GOALS, goals);
+  if (!skipSync) queueSyncChanges();
+}
+
+function setIdeas(nextIdeas, { skipSync } = {}) {
+  ideas = nextIdeas;
+  saveJson(STORAGE_KEYS.IDEAS, ideas);
+  if (!skipSync) queueSyncChanges();
+}
+
 // current focused task (UI only)
 let activeTaskId = null;
+
+let proBootstrap = null;
 
 // sound engine + settings
 const soundEngine = createSoundEngine();
@@ -139,50 +163,26 @@ let currentSoundSettings = {
   completion: true
 };
 
-const syncManager = createSyncManager({
-  freemium,
-  getState: () => ({ projects, tasks, sessions, goals, ideas }),
-  applyRemoteState: remote => {
-    if (remote.projects) {
-      projects = mergeCollections(projects, remote.projects);
-      saveJson(STORAGE_KEYS.PROJECTS, projects);
-    }
-    if (remote.tasks) {
-      tasks = mergeCollections(tasks, remote.tasks);
-      saveJson(STORAGE_KEYS.TASKS, tasks);
-    }
-    if (remote.sessions) {
-      sessions = mergeCollections(sessions, remote.sessions);
-      saveJson(STORAGE_KEYS.SESSIONS, sessions);
-    }
-    if (remote.goals) {
-      goals = mergeCollections(goals, remote.goals);
-      saveJson(STORAGE_KEYS.GOALS, goals);
-    }
-    if (remote.ideas) {
-      ideas = mergeCollections(ideas, remote.ideas);
-      saveJson(STORAGE_KEYS.IDEAS, ideas);
-    }
-
-    renderProjectsSelect();
-    renderProjectsTable();
-    renderTasks();
-    updateDailyProgressUI();
-    renderProgressGraphUI();
-    renderGoalsUI();
-    renderIdeasUI();
-    renderAnalytics();
-  },
-  onStatusChange: status => {
-    if (syncStatusLabel) {
-      syncStatusLabel.textContent = status;
-      saveJson(STORAGE_KEYS.LAST_SYNC, { status, at: new Date().toISOString() });
-    }
-  }
-});
-
 // for sound logic (detect transitions)
 let lastTickState = null;
+
+proBootstrap = createProBootstrap({
+  freemium,
+  getState: () => ({ projects, tasks, sessions, goals, ideas }),
+  setProjects,
+  setTasks,
+  setSessions,
+  setGoals,
+  setIdeas,
+  renderers: {
+    renderProjectsSelect,
+    renderProjectsTable: updateProjectsTableUI,
+    renderTasks: renderTasksUI,
+    updateDailyProgressUI,
+    renderProgressGraphUI
+  },
+  statusLabel: syncStatusLabel
+});
 
 // ===== TIMER INSTANCE =====
 
@@ -206,7 +206,7 @@ function getProjectColorIndex(projectId) {
 }
 
 function queueSyncChanges() {
-  syncManager?.queueSync?.();
+  proBootstrap?.sync.queueSyncChanges();
 }
 
 function initDarkMode() {
@@ -313,27 +313,11 @@ function renderProjectsSelect() {
   projectSelect.innerHTML = "";
   const activeProjects = projects.filter(p => !p.archived);
 
-  const planningSelects = [goalProjectSelect, ideaProjectSelect].filter(Boolean);
-  planningSelects.forEach(select => {
-    select.innerHTML = "";
-    const anyOpt = document.createElement("option");
-    anyOpt.value = "";
-    anyOpt.textContent = "Any project";
-    select.appendChild(anyOpt);
-  });
-
   activeProjects.forEach(p => {
     const opt = document.createElement("option");
     opt.value = p.id;
     opt.textContent = p.name;
     projectSelect.appendChild(opt);
-
-    planningSelects.forEach(select => {
-      const option = document.createElement("option");
-      option.value = p.id;
-      option.textContent = p.name;
-      select.appendChild(option);
-    });
   });
 
   if (!activeProjects.find(p => p.id === activeProjectId)) {
@@ -880,8 +864,8 @@ function handleComplete(payload) {
     updateDailyProgressUI();
     updateProjectsTableUI();
     renderProgressGraphUI();
-    renderGoalsUI();
-    renderAnalytics();
+    proBootstrap?.planning.renderGoals();
+    proBootstrap?.planning.renderAnalytics();
   }
 }
 
@@ -1146,9 +1130,9 @@ function handleProjectAction(projectId, action) {
   updateDailyProgressUI();
   updateProjectsTableUI();
   renderProgressGraphUI();
-  renderGoalsUI();
-  renderIdeasUI();
-  renderAnalytics();
+  proBootstrap?.planning.renderGoals();
+  proBootstrap?.planning.renderIdeas();
+  proBootstrap?.planning.renderAnalytics();
 }
 
 // projects table main listeners
@@ -1364,271 +1348,13 @@ if (toggleTasksArchivedBtn && tasksArchivedSection) {
   });
 }
 
-// ===== GOALS (PRO) =====
-
-function saveGoals() {
-  saveJson(STORAGE_KEYS.GOALS, goals);
-  queueSyncChanges();
-}
-
-function getSessionsForWindow(days, projectId = null) {
-  const now = new Date();
-  return sessions.filter(s => {
-    if (s.mode !== "work") return false;
-    if (projectId && s.projectId !== projectId) return false;
-    if (!days) return true;
-    const completed = s.completedAt ? new Date(s.completedAt) : new Date();
-    const diffDays = (now - completed) / (1000 * 60 * 60 * 24);
-    return diffDays <= days;
-  });
-}
-
-function computeGoalProgress(goal) {
-  const windowDays = goal.type === "daily" ? 1 : goal.type === "weekly" ? 7 : 90;
-  const relevantSessions = getSessionsForWindow(windowDays, goal.projectId);
-  const count = relevantSessions.length;
-  const target = Math.max(0, parseInt(goal.target, 10) || 0);
-  const completed = goal.completed || (target > 0 && count >= target);
-  return { count, target, completed };
-}
-
-function renderGoalsUI() {
-  if (!goalsList) return;
-  goalsList.innerHTML = "";
-
-  const sorted = [...goals].sort((a, b) =>
-    (a.createdAt || "").localeCompare(b.createdAt || "")
-  );
-
-  if (!sorted.length) {
-    const empty = document.createElement("li");
-    empty.className = "muted";
-    empty.textContent = "No goals yet. Add a daily, weekly, or long-term target.";
-    goalsList.appendChild(empty);
-    return;
-  }
-
-  sorted.forEach(goal => {
-    const { count, target, completed } = computeGoalProgress(goal);
-    const project = projects.find(p => p.id === goal.projectId);
-    const li = document.createElement("li");
-    li.className = "goal-item" + (completed ? " is-complete" : "");
-    li.dataset.goalId = goal.id;
-
-    const progress = target > 0 ? Math.min(100, Math.round((count / target) * 100)) : 0;
-
-    li.innerHTML = `
-      <div class="goal-main">
-        <div>
-          <p class="goal-title">${goal.title}</p>
-          <p class="goal-meta">${goal.type || "long_term"}${
-      project ? ` • ${project.name}` : ""
-    }</p>
-        </div>
-        <div class="goal-actions">
-          <button class="task-icon-btn" data-goal-complete title="Mark complete">✅</button>
-          <button class="task-icon-btn" data-goal-delete title="Delete">🗑</button>
-        </div>
-      </div>
-      <div class="goal-progress-row">
-        <div class="goal-progress-bar">
-          <span style="width:${progress}%"></span>
-        </div>
-        <span class="goal-progress-label">${count} / ${target || "∞"} pomodoros</span>
-      </div>
-    `;
-
-    goalsList.appendChild(li);
-  });
-}
-
-if (goalForm) {
-  goalForm.addEventListener("submit", e => {
-    e.preventDefault();
-    if (!freemium.requirePro("Goals")) return;
-
-    const title = goalForm.querySelector("#goalTitle")?.value?.trim();
-    const type = goalForm.querySelector("#goalType")?.value || "long_term";
-    const target = parseInt(goalForm.querySelector("#goalTarget")?.value, 10) || 0;
-    const projectId = goalProjectSelect?.value || "";
-
-    if (!title) return;
-
-    goals.push({
-      id: `g-${Date.now().toString(36)}`,
-      title,
-      type,
-      target,
-      projectId: projectId || null,
-      completed: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    });
-
-    goalForm.reset();
-    saveGoals();
-    renderGoalsUI();
-  });
-}
-
-if (goalsList) {
-  goalsList.addEventListener("click", e => {
-    const completeBtn = e.target.closest("[data-goal-complete]");
-    const deleteBtn = e.target.closest("[data-goal-delete]");
-    const li = e.target.closest(".goal-item");
-    if (!li) return;
-    const id = li.dataset.goalId;
-    const goal = goals.find(g => g.id === id);
-    if (!goal) return;
-
-    if (completeBtn) {
-      goal.completed = !goal.completed;
-      goal.updatedAt = new Date().toISOString();
-      saveGoals();
-      renderGoalsUI();
-      return;
-    }
-
-    if (deleteBtn) {
-      goals = goals.filter(g => g.id !== id);
-      goal.updatedAt = new Date().toISOString();
-      saveGoals();
-      renderGoalsUI();
-    }
-  });
-}
-
-// ===== IDEAS (PRO) =====
-
-function saveIdeas() {
-  saveJson(STORAGE_KEYS.IDEAS, ideas);
-  queueSyncChanges();
-}
-
-function renderIdeasUI() {
-  if (!ideasList) return;
-  ideasList.innerHTML = "";
-
-  const sorted = [...ideas].sort((a, b) =>
-    (b.createdAt || "").localeCompare(a.createdAt || "")
-  );
-
-  if (!sorted.length) {
-    const empty = document.createElement("li");
-    empty.className = "muted";
-    empty.textContent = "Capture ideas, then turn them into tasks.";
-    ideasList.appendChild(empty);
-    return;
-  }
-
-  sorted.forEach(idea => {
-    const project = projects.find(p => p.id === idea.projectId);
-    const li = document.createElement("li");
-    li.className = "idea-item";
-    li.dataset.ideaId = idea.id;
-    li.innerHTML = `
-      <div>
-        <p class="idea-content">${idea.content}</p>
-        <p class="idea-meta">${idea.priority || "medium"}${
-      project ? ` • ${project.name}` : ""
-    }</p>
-      </div>
-      <div class="idea-actions">
-        <button class="task-icon-btn" data-idea-delete title="Delete">🗑</button>
-      </div>
-    `;
-    ideasList.appendChild(li);
-  });
-}
-
-if (ideaForm) {
-  ideaForm.addEventListener("submit", e => {
-    e.preventDefault();
-    if (!freemium.requirePro("Ideas")) return;
-
-    const content = ideaForm.querySelector("#ideaContent")?.value?.trim();
-    const priority = ideaForm.querySelector("#ideaPriority")?.value || "medium";
-    const projectId = ideaProjectSelect?.value || "";
-    if (!content) return;
-
-    ideas.push({
-      id: `i-${Date.now().toString(36)}`,
-      content,
-      priority,
-      projectId: projectId || null,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    });
-
-    ideaForm.reset();
-    saveIdeas();
-    renderIdeasUI();
-  });
-}
-
-if (ideasList) {
-  ideasList.addEventListener("click", e => {
-    const deleteBtn = e.target.closest("[data-idea-delete]");
-    if (!deleteBtn) return;
-    const li = e.target.closest(".idea-item");
-    if (!li) return;
-    const id = li.dataset.ideaId;
-    ideas = ideas.filter(i => i.id !== id);
-    saveIdeas();
-    renderIdeasUI();
-  });
-}
-
-// ===== ANALYTICS (PRO) =====
-
-function renderAnalytics() {
-  if (!analyticsSummary || !analyticsProjectList) return;
-
-  const last7 = getSessionsForWindow(7);
-  const last30 = getSessionsForWindow(30);
-  const last90 = getSessionsForWindow(90);
-
-  const statTemplate = (label, items) =>
-    `<div class="analytics-stat"><strong>${items.length}</strong><span>${label}</span></div>`;
-
-  analyticsSummary.innerHTML = `
-    ${statTemplate("Last 7 days", last7)}
-    ${statTemplate("Last 30 days", last30)}
-    ${statTemplate("Last 90 days", last90)}
-  `;
-
-  analyticsProjectList.innerHTML = "";
-  const projectStats = projects.map(p => {
-    const projectSessions = getSessionsForWindow(90, p.id);
-    const minutes = projectSessions.reduce(
-      (sum, s) => sum + Math.round((s.durationSeconds || 0) / 60),
-      0
-    );
-    return { ...p, count: projectSessions.length, minutes };
-  });
-
-  projectStats
-    .sort((a, b) => b.count - a.count)
-    .forEach(stat => {
-      const li = document.createElement("li");
-      li.className = "project-analytics-row";
-      li.innerHTML = `
-        <div>
-          <p class="project-analytics-title">${stat.name}</p>
-          <p class="project-analytics-meta">${stat.count} sessions • ${stat.minutes} minutes</p>
-        </div>
-      `;
-      analyticsProjectList.appendChild(li);
-    });
-}
-
 // ===== CLOUD SYNC (PRO) =====
 
 if (syncNowBtn) {
   syncNowBtn.addEventListener("click", () => {
     if (!freemium.requirePro("Cloud sync")) return;
     syncStatusLabel.textContent = "Syncing...";
-    syncManager.syncUp();
+    proBootstrap?.sync.syncUp();
   });
 }
 
@@ -1677,8 +1403,8 @@ updateCurrentProjectLabel();
 updateProjectsTableUI();
 renderTasksUI();
 renderProgressGraphUI();
-renderGoalsUI();
-renderIdeasUI();
-renderAnalytics();
-syncManager.bootstrap();
+proBootstrap?.planning.renderPlanningSelects();
+proBootstrap?.planning.renderGoals();
+proBootstrap?.planning.renderIdeas();
+proBootstrap?.planning.renderAnalytics();
 timer.switchMode("work");
