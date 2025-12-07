@@ -1,8 +1,14 @@
+// Timer emits plan-agnostic callbacks that higher-level controllers (Basic or Pro)
+// can subscribe to for sounds, notifications, or analytics.
 export class PomodoroTimer {
   constructor({ onTick, onModeChange, onComplete } = {}) {
-    this.onTick = onTick || (() => {});
-    this.onModeChange = onModeChange || (() => {});
-    this.onComplete = onComplete || (() => {});
+    this.tickSubscribers = new Set();
+    this.modeChangeSubscribers = new Set();
+    this.completeSubscribers = new Set();
+
+    if (onTick) this.addTickListener(onTick);
+    if (onModeChange) this.addModeChangeListener(onModeChange);
+    if (onComplete) this.addCompleteListener(onComplete);
 
     this.durations = {
       work: 25 * 60,
@@ -16,15 +22,6 @@ export class PomodoroTimer {
     this.isRunning = false;
     this._intervalId = null;
 
-    this.soundSettings = {
-      master: true,
-      tick: true,
-      happyTick: true,
-      minute: true,
-      fiveMinute: true,
-      completion: true
-    };
-
     this._emitModeChange();
     this._emitTick();
   }
@@ -34,10 +31,6 @@ export class PomodoroTimer {
     if (typeof short === "number") this.durations.short = short;
     if (typeof long === "number") this.durations.long = long;
     this._applyCurrentDuration();
-  }
-
-  setSoundSettings(settings) {
-    this.soundSettings = { ...this.soundSettings, ...(settings || {}) };
   }
 
   start() {
@@ -104,20 +97,41 @@ export class PomodoroTimer {
       completedAt: new Date().toISOString()
     };
     this._emitTick();
-    this.onComplete(payload);
+    this._emitComplete(payload);
   }
 
   _emitTick() {
-    this.onTick({
+    const payload = {
       timeLeft: this.timeLeft,
       totalTime: this.totalTime,
       mode: this.mode
-    });
+    };
+    this.tickSubscribers.forEach(cb => cb(payload));
   }
 
   _emitModeChange() {
-    this.onModeChange({
-      mode: this.mode
-    });
+    this.modeChangeSubscribers.forEach(cb => cb({ mode: this.mode }));
+  }
+
+  _emitComplete(payload) {
+    this.completeSubscribers.forEach(cb => cb(payload));
+  }
+
+  addTickListener(cb) {
+    if (typeof cb !== "function") return () => {};
+    this.tickSubscribers.add(cb);
+    return () => this.tickSubscribers.delete(cb);
+  }
+
+  addModeChangeListener(cb) {
+    if (typeof cb !== "function") return () => {};
+    this.modeChangeSubscribers.add(cb);
+    return () => this.modeChangeSubscribers.delete(cb);
+  }
+
+  addCompleteListener(cb) {
+    if (typeof cb !== "function") return () => {};
+    this.completeSubscribers.add(cb);
+    return () => this.completeSubscribers.delete(cb);
   }
 }
