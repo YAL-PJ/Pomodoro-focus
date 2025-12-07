@@ -1,6 +1,8 @@
 import { PomodoroTimer } from "./timer.js";
 import { STORAGE_KEYS, loadJson, saveJson, todayKey } from "./storage.js";
 import { createFreemiumManager } from "./freemium.js";
+import { createSoundEngine } from "./sound.js";
+import { createFreemiumManager } from "./freemium/index.js";
 import { createSyncManager, mergeCollections } from "./sync.js";
 
 // DOM refs
