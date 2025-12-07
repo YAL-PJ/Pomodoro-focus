@@ -51,6 +51,8 @@ const tasksArchivedSection = document.getElementById("tasksArchivedSection");
 // ===== STATE: FREEMIUM, PROJECTS, SESSIONS, TASKS =====
 
 const freemium = createFreemiumManager();
+// expose for non-module scripts (auth.js) to read/update email state
+window.freemium = freemium;
 
 let projects = loadJson(STORAGE_KEYS.PROJECTS, []);
 if (!projects.length) {

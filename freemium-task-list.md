@@ -3,10 +3,10 @@
 Goal: transform Focus Pomodoro from a free timer into a freemium product with Basic (free) and Pro ($4.99/mo) tiers that gate planning and cloud features while keeping the timer and simple tasks free.
 
 ## Phase 1: Foundation Setup
-- [ ] Stand up Supabase project (capture project URL/anon key, region settings).
-- [ ] Create core database tables (profiles, projects, tasks, pomodoro_sessions) plus Pro tables (goals, ideas) with sensible defaults.
-- [ ] Enable RLS on all tables and add per-user CRUD policies.
-- [ ] Add trigger to create a profile row on new auth user signup.
+- [x] Stand up Supabase project (capture project URL/anon key, region settings).
+- [x] Create core database tables (profiles, projects, tasks, pomodoro_sessions) plus Pro tables (goals, ideas) with sensible defaults.
+- [x] Enable RLS on all tables and add per-user CRUD policies.
+- [x] Add trigger to create a profile row on new auth user signup.
 - [ ] Open Stripe account, define monthly ($4.99) and yearly ($39.99) products/prices, and note test/live API keys and webhook endpoint.
 - [ ] Finalize feature matrix for Free vs Pro (timer/tasks vs. projects/goals/ideas/analytics/cloud sync) and share with all teams.
 - [ ] Produce auth UI, upgrade prompt, and pricing mockups.
