@@ -213,7 +213,9 @@ function initDarkMode() {
   const saved = localStorage.getItem(STORAGE_KEYS.DARK_MODE);
   const isDark = saved === "true";
   document.body.classList.toggle("dark", isDark);
-  darkModeToggle.textContent = isDark ? "☀️" : "🌙";
+  if (darkModeToggle) {
+    darkModeToggle.textContent = isDark ? "☀️" : "🌙";
+  }
 }
 
 function updateZenModeUI(isZen) {
@@ -242,6 +244,18 @@ function initZenMode() {
 }
 
 function initSoundSettings() {
+  if (
+    !masterSoundToggle ||
+    !tickSoundToggle ||
+    !happyTickSoundToggle ||
+    !minuteSoundToggle ||
+    !fiveMinuteSoundToggle ||
+    !completionSoundToggle
+  ) {
+    console.warn("Sound toggles missing; skipping sound settings init.");
+    return;
+  }
+
   const saved = loadJson(STORAGE_KEYS.SOUND_SETTINGS, null);
   const defaults = {
     master: true,
@@ -265,6 +279,18 @@ function initSoundSettings() {
 }
 
 function saveSoundSettingsFromUI() {
+  if (
+    !masterSoundToggle ||
+    !tickSoundToggle ||
+    !happyTickSoundToggle ||
+    !minuteSoundToggle ||
+    !fiveMinuteSoundToggle ||
+    !completionSoundToggle
+  ) {
+    console.warn("Sound toggles missing; skipping sound settings save.");
+    return;
+  }
+
   const settings = {
     master: masterSoundToggle.checked,
     tick: tickSoundToggle.checked,
@@ -279,6 +305,11 @@ function saveSoundSettingsFromUI() {
 }
 
 function renderProjectsSelect() {
+  if (!projectSelect) {
+    console.warn("Project select element missing; skipping render.");
+    return;
+  }
+
   projectSelect.innerHTML = "";
   const activeProjects = projects.filter(p => !p.archived);
 
@@ -359,6 +390,11 @@ function getProjectStatsById() {
 }
 
 function updateDailyProgressUI() {
+  if (!dailyGoalLabel || !dailyBarFill) {
+    console.warn("Daily progress elements missing; skipping update.");
+    return;
+  }
+
   const today = todayKey();
   const todaysSessions = sessions.filter(
     s => s.mode === "work" && s.completedAt.slice(0, 10) === today
@@ -853,37 +889,43 @@ function handleComplete(payload) {
 
 // start / pause / reset
 
-startBtn.addEventListener("click", () => {
-  timer.start();
-  startBtn.style.display = "none";
-  controls.classList.add("active");
-});
+if (startBtn && pauseBtn && controls) {
+  startBtn.addEventListener("click", () => {
+    timer.start();
+    startBtn.style.display = "none";
+    controls.classList.add("active");
+  });
 
-pauseBtn.addEventListener("click", () => {
-  timer.pause();
-  startBtn.style.display = "inline-flex";
-  controls.classList.remove("active");
-});
+  pauseBtn.addEventListener("click", () => {
+    timer.pause();
+    startBtn.style.display = "inline-flex";
+    controls.classList.remove("active");
+  });
+}
 
-resetBtn.addEventListener("click", () => {
-  timer.reset();
-});
+if (resetBtn) {
+  resetBtn.addEventListener("click", () => {
+    timer.reset();
+  });
+}
 
 // make entire timer circle clickable (toggle start/pause)
-timerCircle.addEventListener("click", e => {
-  if (
-    e.target.closest("#pauseBtn") ||
-    e.target.closest("#resetBtn") ||
-    e.target.closest("#startBtn")
-  ) {
-    return;
-  }
-  if (timer.isRunning) {
-    pauseBtn.click();
-  } else {
-    startBtn.click();
-  }
-});
+if (timerCircle && startBtn && pauseBtn) {
+  timerCircle.addEventListener("click", e => {
+    if (
+      e.target.closest("#pauseBtn") ||
+      e.target.closest("#resetBtn") ||
+      e.target.closest("#startBtn")
+    ) {
+      return;
+    }
+    if (timer.isRunning) {
+      pauseBtn.click();
+    } else {
+      startBtn.click();
+    }
+  });
+}
 
 // modes
 
@@ -900,6 +942,11 @@ modeButtons.forEach(btn => {
 // durations
 
 function syncDurationsFromInputs() {
+  if (!workInput || !shortInput || !longInput) {
+    console.warn("Duration inputs missing; skipping duration sync.");
+    return;
+  }
+
   const work = Math.max(1, Math.min(60, parseInt(workInput.value, 10) || 25));
   const short = Math.max(1, Math.min(30, parseInt(shortInput.value, 10) || 5));
   const long = Math.max(1, Math.min(60, parseInt(longInput.value, 10) || 15));
@@ -915,18 +962,22 @@ function syncDurationsFromInputs() {
   });
 }
 
-[workInput, shortInput, longInput].forEach(input => {
-  input.addEventListener("change", syncDurationsFromInputs);
-});
+[workInput, shortInput, longInput]
+  .filter(Boolean)
+  .forEach(input => {
+    input.addEventListener("change", syncDurationsFromInputs);
+  });
 
 // dark mode
 
-darkModeToggle.addEventListener("click", () => {
-  const isDark = !document.body.classList.contains("dark");
-  document.body.classList.toggle("dark", isDark);
-  darkModeToggle.textContent = isDark ? "☀️" : "🌙";
-  localStorage.setItem(STORAGE_KEYS.DARK_MODE, String(isDark));
-});
+  if (darkModeToggle) {
+    darkModeToggle.addEventListener("click", () => {
+      const isDark = !document.body.classList.contains("dark");
+      document.body.classList.toggle("dark", isDark);
+      darkModeToggle.textContent = isDark ? "☀️" : "🌙";
+      localStorage.setItem(STORAGE_KEYS.DARK_MODE, String(isDark));
+    });
+  }
 
 // zen mode
 
@@ -940,16 +991,18 @@ if (zenModeToggle) {
 
 // sound settings toggles
 
-[
-  masterSoundToggle,
-  tickSoundToggle,
-  happyTickSoundToggle,
-  minuteSoundToggle,
-  fiveMinuteSoundToggle,
-  completionSoundToggle
-].forEach(input => {
-  input.addEventListener("change", saveSoundSettingsFromUI);
-});
+  [
+    masterSoundToggle,
+    tickSoundToggle,
+    happyTickSoundToggle,
+    minuteSoundToggle,
+    fiveMinuteSoundToggle,
+    completionSoundToggle
+  ]
+    .filter(Boolean)
+    .forEach(input => {
+      input.addEventListener("change", saveSoundSettingsFromUI);
+    });
 
 // keyboard: space = start/pause
 
@@ -972,23 +1025,26 @@ document.addEventListener("keydown", e => {
   }
 
   // Global Space shortcut: toggle timer
-  e.preventDefault();
-  if (timer.isRunning) {
-    pauseBtn.click();
-  } else {
-    startBtn.click();
+    e.preventDefault();
+    if (!startBtn || !pauseBtn) return;
+    if (timer.isRunning) {
+      pauseBtn.click();
+    } else {
+      startBtn.click();
+    }
+  });
+
+  // projects: dropdown change
+
+  if (projectSelect) {
+    projectSelect.addEventListener("change", () => {
+      activeProjectId = projectSelect.value;
+      localStorage.setItem(STORAGE_KEYS.ACTIVE_PROJECT, activeProjectId);
+      updateCurrentProjectLabel();
+      updateDailyProgressUI();
+      updateProjectsTableUI();
+    });
   }
-});
-
-// projects: dropdown change
-
-projectSelect.addEventListener("change", () => {
-  activeProjectId = projectSelect.value;
-  localStorage.setItem(STORAGE_KEYS.ACTIVE_PROJECT, activeProjectId);
-  updateCurrentProjectLabel();
-  updateDailyProgressUI();
-  updateProjectsTableUI();
-});
 
 // handle new project row (enter: add, esc: clear)
 
