@@ -1,6 +1,5 @@
 import { PomodoroTimer } from "./timer.js";
 import { STORAGE_KEYS, loadJson, saveJson, todayKey } from "./storage.js";
-import { createSoundEngine } from "./sound.js";
 import { createFreemiumManager } from "./freemium.js";
 import { createSyncManager, mergeCollections } from "./sync.js";
 
@@ -22,13 +21,6 @@ const longInput = document.getElementById("longDuration");
 
 const darkModeToggle = document.getElementById("darkModeToggle");
 const zenModeToggle = document.getElementById("zenModeToggle");
-const masterSoundToggle = document.getElementById("masterSoundToggle");
-const tickSoundToggle = document.getElementById("tickSoundToggle");
-const happyTickSoundToggle = document.getElementById("happyTickSoundToggle");
-const minuteSoundToggle = document.getElementById("minuteSoundToggle");
-const fiveMinuteSoundToggle = document.getElementById("fiveMinuteSoundToggle");
-const completionSoundToggle = document.getElementById("completionSoundToggle");
-
 const dailyGoalLabel = document.getElementById("dailyGoalLabel");
 const dailyBarFill = document.getElementById("dailyBarFill");
 const projectSelect = document.getElementById("projectSelect");
@@ -66,7 +58,7 @@ const analyticsProjectList = document.getElementById("analyticsProjectList");
 
 // ===== STATE: FREEMIUM, PROJECTS, SESSIONS, TASKS =====
 
-const freemium = createFreemiumManager();
+export const freemium = createFreemiumManager();
 // expose for non-module scripts (auth.js) to read/update email state
 window.freemium = freemium;
 
@@ -128,17 +120,6 @@ let ideas = loadJson(STORAGE_KEYS.IDEAS, []).map(i => ({
 // current focused task (UI only)
 let activeTaskId = null;
 
-// sound engine + settings
-const soundEngine = createSoundEngine();
-let currentSoundSettings = {
-  master: true,
-  tick: true,
-  happyTick: true,
-  minute: true,
-  fiveMinute: true,
-  completion: true
-};
-
 const syncManager = createSyncManager({
   freemium,
   getState: () => ({ projects, tasks, sessions, goals, ideas }),
@@ -181,12 +162,8 @@ const syncManager = createSyncManager({
   }
 });
 
-// for sound logic (detect transitions)
-let lastTickState = null;
-
 // ===== TIMER INSTANCE =====
-
-const timer = new PomodoroTimer({
+export const timer = new PomodoroTimer({
   onTick: handleTick,
   onModeChange: handleModeChange,
   onComplete: handleComplete
@@ -241,67 +218,6 @@ function initZenMode() {
   const saved = localStorage.getItem(STORAGE_KEYS.ZEN_MODE);
   const isZen = saved === "true";
   updateZenModeUI(isZen);
-}
-
-function initSoundSettings() {
-  if (
-    !masterSoundToggle ||
-    !tickSoundToggle ||
-    !happyTickSoundToggle ||
-    !minuteSoundToggle ||
-    !fiveMinuteSoundToggle ||
-    !completionSoundToggle
-  ) {
-    console.warn("Sound toggles missing; skipping sound settings init.");
-    return;
-  }
-
-  const saved = loadJson(STORAGE_KEYS.SOUND_SETTINGS, null);
-  const defaults = {
-    master: true,
-    tick: true,
-    happyTick: true,
-    minute: true,
-    fiveMinute: true,
-    completion: true
-  };
-  const applied = { ...defaults, ...(saved || {}) };
-
-  masterSoundToggle.checked = applied.master;
-  tickSoundToggle.checked = applied.tick;
-  happyTickSoundToggle.checked = applied.happyTick;
-  minuteSoundToggle.checked = applied.minute;
-  fiveMinuteSoundToggle.checked = applied.fiveMinute;
-  completionSoundToggle.checked = applied.completion;
-
-  currentSoundSettings = applied;
-  timer.setSoundSettings(applied); // reserved for future use
-}
-
-function saveSoundSettingsFromUI() {
-  if (
-    !masterSoundToggle ||
-    !tickSoundToggle ||
-    !happyTickSoundToggle ||
-    !minuteSoundToggle ||
-    !fiveMinuteSoundToggle ||
-    !completionSoundToggle
-  ) {
-    console.warn("Sound toggles missing; skipping sound settings save.");
-    return;
-  }
-
-  const settings = {
-    master: masterSoundToggle.checked,
-    tick: tickSoundToggle.checked,
-    happyTick: happyTickSoundToggle.checked,
-    minute: minuteSoundToggle.checked,
-    fiveMinute: fiveMinuteSoundToggle.checked,
-    completion: completionSoundToggle.checked
-  };
-  currentSoundSettings = settings;
-  saveJson(STORAGE_KEYS.SOUND_SETTINGS, settings);
-  timer.setSoundSettings(settings);
 }
 
 function renderProjectsSelect() {
@@ -761,55 +677,6 @@ function renderProgressGraphUI() {
   `;
 }
 
-// ===== SOUND TICK LOGIC =====
-
-function handleTickSounds({ timeLeft, totalTime, mode }) {
-  if (!soundEngine || !soundEngine.ctx) return;
-  const s = currentSoundSettings;
-  if (!s.master) return;
-
-  // base tick every second in work mode (soft beep)
-  if (mode === "work" && s.tick) {
-    soundEngine.tick();
-  }
-
-  const prev = lastTickState;
-  lastTickState = { timeLeft, mode };
-
-  if (!prev) return;
-  if (timeLeft === prev.timeLeft) return;
-
-  // every full minute remaining (work mode only)
-  if (
-    mode === "work" &&
-    s.minute &&
-    timeLeft > 0 &&
-    timeLeft % 60 === 0
-  ) {
-    soundEngine.minute();
-  }
-
-  // every 5 minutes remaining
-  if (
-    mode === "work" &&
-    s.fiveMinute &&
-    timeLeft > 0 &&
-    timeLeft % 300 === 0
-  ) {
-    soundEngine.fiveMinute();
-  }
-
-  // last 10 seconds: "happy ticks"
-  if (
-    mode === "work" &&
-    s.happyTick &&
-    timeLeft > 0 &&
-    timeLeft <= 10
-  ) {
-    soundEngine.happyTick();
-  }
-}
-
 // ===== TIMER CALLBACKS =====
 
 function handleTick({ timeLeft, totalTime, mode }) {
@@ -826,7 +693,6 @@ function handleTick({ timeLeft, totalTime, mode }) {
     progressCircleElem.style.strokeDashoffset = offset;
   }
 
-  handleTickSounds({ timeLeft, totalTime, mode });
 }
 
 function handleModeChange({ mode }) {
@@ -872,10 +738,6 @@ function handleComplete(payload) {
     sessions.push(session);
     saveJson(STORAGE_KEYS.SESSIONS, sessions);
     queueSyncChanges();
-
-    if (currentSoundSettings.master && currentSoundSettings.completion) {
-      soundEngine.completion();
-    }
 
     updateDailyProgressUI();
     updateProjectsTableUI();
@@ -988,21 +850,6 @@ if (zenModeToggle) {
     localStorage.setItem(STORAGE_KEYS.ZEN_MODE, String(isZen));
   });
 }
-
-// sound settings toggles
-
-  [
-    masterSoundToggle,
-    tickSoundToggle,
-    happyTickSoundToggle,
-    minuteSoundToggle,
-    fiveMinuteSoundToggle,
-    completionSoundToggle
-  ]
-    .filter(Boolean)
-    .forEach(input => {
-      input.addEventListener("change", saveSoundSettingsFromUI);
-    });
 
 // keyboard: space = start/pause
 
