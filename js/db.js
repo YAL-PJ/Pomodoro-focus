@@ -1,7 +1,16 @@
-// Access the library we loaded in index.html
-const { createClient } = supabase;
+// Create a single Supabase client that the rest of the app can reuse.
+(function initializeSupabaseClient() {
+  if (!window.supabaseClient && window.supabase && window.SUPABASE_URL && window.SUPABASE_ANON_KEY) {
+    window.supabaseClient = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+  }
 
-// Create the database client using keys from config.js
-const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const client = window.supabaseClient;
 
-console.log("Supabase client initialized", db);
+  if (!client) {
+    console.warn('Supabase client could not be initialized. Check config.js for URL/key values.');
+    return;
+  }
+
+  window.db = client;
+  console.log('Supabase client initialized', client);
+})();
