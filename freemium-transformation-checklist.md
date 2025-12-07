@@ -2,6 +2,10 @@
 
 Use this list to track every step for turning Focus Pomodoro into a freemium product with Basic (free) and Pro tiers.
 
+## Status snapshot
+- Free-mode layout, gating, and Supabase auth scaffolding are in place.
+- Pro delivery is **not yet implemented**: projects/goals/ideas/analytics views, Supabase sync, and Stripe checkout/webhook functions still need to be built before Pro can ship.
+
 ## Phase 1: Foundation Setup
 - [x] Stand up Supabase project (capture project URL/anon key, region settings).
 - [x] Create core database tables (profiles, projects, tasks, pomodoro_sessions) plus Pro tables (goals, ideas) with sensible defaults.
@@ -12,16 +16,16 @@ Use this list to track every step for turning Focus Pomodoro into a freemium pro
 - [ ] Produce auth UI, upgrade prompt, and pricing mockups.
 
 ## Phase 2: Authentication
-- [ ] Add Supabase JS client config and wiring to the frontend.
-- [ ] Fix browser config exposure so Supabase URL/key are available and initialize the client in `db.js`.
-- [ ] Build login/signup/forgot-password modals and header entry points; show user menu when authenticated.
-- [ ] Implement auth flows (signup, login, logout, password reset) with session persistence and auto-refresh.
-- [ ] Configure Supabase Auth (email templates, redirect URLs, optional OAuth) and a helper to fetch user profile + subscription status.
+- [x] Add Supabase JS client config and wiring to the frontend.
+- [x] Fix browser config exposure so Supabase URL/key are available and initialize the client in `db.js`.
+- [x] Build login/signup/forgot-password modals and header entry points; show user menu when authenticated.
+- [x] Implement auth flows (signup, login, logout, password reset) with session persistence and auto-refresh.
+- [x] Configure Supabase Auth (email templates, redirect URLs, optional OAuth) and a helper to fetch user profile + subscription status.
 
 ## Phase 3: Free Tier UI Simplification
 - [x] Introduce a user state manager and feature-gating helper that marks Pro-only elements.
 - [x] Tag Pro UI with data attributes and add locked overlays that route to upgrade prompts when clicked.
-- [ ] Create simplified free layout (timer + basic tasks + settings) and hide Pro areas (projects, progress graphs, archives) for free users.
+- [x] Create simplified free layout (timer + basic tasks + settings) and hide Pro areas (projects, progress graphs, archives) for free users.
 - [x] Design upgrade messaging and “what you get with Pro” cards for locked states.
 
 ## Phase 4: Pro Feature Implementation
@@ -34,7 +38,7 @@ Use this list to track every step for turning Focus Pomodoro into a freemium pro
 - [ ] Add backend helpers/edge functions for analytics queries and data export.
 
 ## Phase 5: Payments
-- [ ] Create payments module that calls Supabase Edge Functions to start Stripe Checkout.
+- [x] Create payments module that calls Supabase Edge Functions to start Stripe Checkout.
 - [ ] Write `create-checkout` Edge Function to create customers/subscriptions, pass price IDs, and redirect users.
 - [ ] Write webhook handler to update subscription status/customer IDs in `profiles` on invoice paid/failed, cancellations, renewals.
 - [ ] Update UI to reflect subscription state (active, past_due, canceled) and gate features accordingly.
