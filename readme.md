@@ -1,156 +1,89 @@
-# Focus Pomodoro Timer 🍅👑
+# Focus Pomodoro
 
-A beautifully designed, minimalist Pomodoro timer to boost your productivity. Features customizable work sessions, break reminders, achievement sounds, and a delightful tomato crown mascot!
+A browser-based Pomodoro workspace that combines a configurable focus timer with local task tracking and an experimental Supabase-backed freemium architecture.
 
-## ✨ Features
+## Overview
 
-- **Beautiful & Minimal Design** - Clean interface with dark mode support
-- **Customizable Timers** - Adjust work, short break, and long break durations
-- **Smart Sound System** - Choose which sounds you want:
-  - Soft ticking sounds
-  - Happy ticks for the last 3 minutes
-  - Minute achievement chimes
-  - 5-minute celebration melodies
-  - Victory fanfare on completion
-- **Progress Tracking** - See how many Pomodoros you've completed
-- **Responsive Design** - Works perfectly on desktop and mobile
-- **Accessibility** - Full ARIA labels and keyboard navigation support
-- **No Signup Required** - Start using immediately, all data saved locally
+Focus Pomodoro explores how a dependency-light productivity app can grow from a local-first timer into a tiered product without introducing a frontend framework. I built the timer engine, task and project state, browser persistence, sound synthesis, responsive interface, feature gates, analytics views, and the client-side boundaries for authentication, cloud sync, and billing.
 
-## 🚀 Deploy to Netlify
+The repository is currently an experimental integration snapshot. Its individual modules show the intended architecture, but the active module graph does not bootstrap successfully because `js/main.js` contains conflicting and incomplete integration code and references a missing `js/freemium.js` module. The Supabase payment functions invoked by the client are also not included.
 
-### Option 1: Deploy via Netlify Drop (Easiest)
+## Features
 
-1. Go to [Netlify Drop](https://app.netlify.com/drop)
-2. Drag and drop the entire project folder
-3. Your site will be live instantly!
+- Configurable work, short-break, and long-break timers with start, pause, reset, and Space-bar control
+- Tasks, projects, daily goals, completed-session history, and browser `localStorage` persistence
+- Dark mode, Zen mode, responsive layouts, progress visualizations, and selectable synthesized sound cues
+- Basic/Pro UI gating with upgrade, authentication, feedback, planning, analytics, archive, and sync interfaces
+- Supabase schema and browser clients for email authentication, row-level user isolation, and data synchronization
 
-### Option 2: Deploy via Git (Recommended for updates)
+## Technical Highlights
 
-1. **Create a GitHub repository:**
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   git branch -M main
-   git remote add origin https://github.com/YOUR_USERNAME/pomodoro-timer.git
-   git push -u origin main
-   ```
+- **Separated timer domain logic.** `PomodoroTimer` owns countdown state and exposes tick, mode-change, and completion subscriptions. DOM updates and sound behavior sit in controller modules, keeping timekeeping independent from presentation.
+- **Local-first state model.** Projects, tasks, sessions, goals, ideas, preferences, and tier state are stored behind shared storage helpers. A completed work interval is associated with the active project and task before analytics are recalculated.
+- **Progressive Pro loading.** The intended entry point initializes the basic timer and task experience first, then dynamically imports analytics and planning behavior when the freemium state changes to Pro.
+- **Explicit sync translation.** The sync layer maps camelCase browser objects to the Supabase schema, scopes reads by authenticated user, upserts each collection, and merges local and remote records using update timestamps.
+- **Database authorization.** `supabase/schema.sql` enables Row Level Security and defines per-user CRUD policies for profiles, projects, tasks, sessions, goals, and ideas. An auth trigger creates a profile for each new user.
+- **Browser-native audio.** Sound cues are generated through the Web Audio API instead of bundled audio files, with independent persisted toggles for tick, milestone, and completion sounds.
+- **Static deployment hardening.** `netlify.toml` publishes the repository root and defines frame, MIME-sniffing, referrer, permissions, XSS, and cache headers.
 
-2. **Connect to Netlify:**
-   - Go to [Netlify](https://app.netlify.com/)
-   - Click "Add new site" → "Import an existing project"
-   - Connect your GitHub account
-   - Select your repository
-   - Click "Deploy site"
+There is no automated test suite in the repository. Validation is currently limited to source inspection and manual browser testing.
 
-3. **Done!** Your site will be live at `https://yoursite.netlify.app`
+## Architecture
 
-### Option 3: Netlify CLI
-
-1. **Install Netlify CLI:**
-   ```bash
-   npm install -g netlify-cli
-   ```
-
-2. **Login and deploy:**
-   ```bash
-   netlify login
-   netlify init
-   netlify deploy --prod
-   ```
-
-## 🎨 Customization
-
-### Update Site Name
-After deployment, go to **Site settings** → **General** → **Change site name**
-
-### Add Custom Domain
-Go to **Domain settings** → **Add custom domain**
-
-### Set Up Feedback Form
-Replace the Google Forms link in `index.html`:
-```html
-<button class="feedback-btn" onclick="window.open('YOUR_FORM_URL', '_blank')">
+```mermaid
+flowchart LR
+    UI[HTML/CSS interface] --> App[Application bootstrap]
+    App --> Timer[Timer engine]
+    App --> State[Tasks, projects, and sessions]
+    Timer --> Controllers[Timer and sound controllers]
+    Controllers --> UI
+    State --> Local[(localStorage)]
+    App --> Gates[Freemium state and UI gates]
+    Gates --> Pro[Planning and analytics modules]
+    Pro --> Sync[Sync mapper]
+    Sync --> Supabase[(Supabase Auth + PostgreSQL)]
+    Payments[Checkout and portal client] --> Functions[Expected Supabase Edge Functions]
 ```
 
-**To create a feedback form:**
-1. Go to [Google Forms](https://forms.google.com/)
-2. Create a new form with fields like:
-   - Name (optional)
-   - Email (optional)
-   - Feedback Type (Bug/Feature/Other)
-   - Message
-3. Click "Send" → Get shareable link
-4. Replace `YOUR_GOOGLE_FORM_ID` in index.html
+`index.html` loads Supabase configuration and authentication as classic scripts, then loads `js/app.js` as the ES-module entry point. `app.js` composes the timer, controllers, local state, freemium manager, optional Pro modules, and sync manager. Supabase is an enhancement boundary: local state is the browser-side source used by the timer and task UI, while authenticated Pro state is intended to synchronize through the schema in `supabase/schema.sql`.
 
-### Update Social Media Images
-Create an `og-image.png` (1200x630px) and add it to your project for better social sharing.
+The diagram describes the implemented module boundaries, including the external Edge Function boundary expected by `js/payments.js`; those server functions are not present in this repository.
 
-## 📱 SEO Optimization
+## Tech Stack
 
-The site includes:
-- ✅ Meta tags (title, description)
-- ✅ Open Graph tags (Facebook, LinkedIn)
-- ✅ Twitter Card tags
-- ✅ JSON-LD structured data
-- ✅ Robots.txt
-- ✅ Sitemap.xml
-- ✅ Semantic HTML
-- ✅ Fast loading time
+- Semantic HTML5 and CSS3
+- Vanilla JavaScript with ES modules
+- Browser APIs: `localStorage`, Web Audio, Notifications, and SVG
+- Supabase JavaScript v2, Auth, PostgreSQL, Row Level Security, and Edge Function client calls
+- Google Analytics and an embedded Google Forms feedback form
+- Netlify static-hosting configuration
+- Mermaid for this architecture diagram only
 
-## ♿ Accessibility Features
+## Getting Started
 
-- ARIA labels on all interactive elements
-- Keyboard navigation support
-- Screen reader friendly
-- Skip to main content link
-- High contrast mode support
-- Sufficient color contrast ratios
+No dependency installation or build step is defined. A local HTTP server is required for the ES-module imports.
 
-## 🔒 Security
-
-- Security headers configured in `netlify.toml`
-- CSP (Content Security Policy) ready
-- XSS protection enabled
-- No external dependencies or tracking
-
-## 📊 Analytics (Optional)
-
-To add analytics, insert before `</body>`:
-
-**Google Analytics:**
-```html
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=YOUR_GA_ID"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'YOUR_GA_ID');
-</script>
+```bash
+python -m http.server 8000
 ```
 
-**Plausible (Privacy-friendly):**
-```html
-<script defer data-domain="yoursite.com" src="https://plausible.io/js/script.js"></script>
-```
+Then open `http://localhost:8000/`.
 
-## 🛠️ Technical Details
+The command was verified with Python 3.14. Before expecting a working UI, resolve the current entry-point issues in `js/main.js`: it imports both a missing `./freemium.js` and the existing `./freemium/index.js` under the same binding, and its Pro bootstrap construction is incomplete. Supabase-dependent behavior also requires a reachable project provisioned with `supabase/schema.sql`. Checkout and billing portal actions additionally require deployed `create-checkout` and `billing-portal` Edge Functions, which are not included here.
 
-- **Framework:** Vanilla JavaScript (no dependencies!)
-- **Size:** ~15KB (super lightweight)
-- **Browser Support:** All modern browsers
-- **Offline:** Works offline after first load (PWA-ready)
+## Demo
 
-## 📝 License
+Screenshot coming soon.
 
-Feel free to use this project for personal or commercial purposes!
+The repository contains deployment metadata for `focus-pomadoro.com`, but it does not provide evidence that the site is currently deployed, so no live-demo claim is made here.
 
-## 🙏 Credits
+## Project Status
 
-Created with focus and tomatoes 🍅👑
+**Experimental.** The core timer, local state, UI modules, Supabase schema, authentication client, sync mapping, and feature-gating code are present. The immediate planned work is to repair the browser entry-point integration, add automated coverage for timer and state behavior, implement and test the missing payment Edge Functions, and verify the full authentication/sync/payment flow end to end.
 
----
+## What I Learned
 
-**Need help?** Open an issue or submit feedback through the app!
+- A timer becomes easier to extend when countdown state emits events instead of directly controlling the page; sound, analytics, notifications, and persistence can subscribe independently.
+- A local-first model needs an explicit translation layer once database naming, nullable relationships, ownership, and conflict resolution enter the design.
+- Frontend feature gates improve product presentation but do not provide authorization; subscription state and database RLS must enforce access at trusted boundaries.
+- Splitting a growing application into modules is only useful when the composition root remains coherent. The current broken entry path is a concrete reminder to validate the integrated browser graph, not just isolated files.
