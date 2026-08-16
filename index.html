@@ -1,617 +1,87 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
-  <script src="js/config.js"></script>
-  <script src="js/db.js"></script>
-  <script src="js/auth.js"></script>
-  
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SS6WZL8VTK"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-SS6WZL8VTK');
-  </script>
-
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- SEO Meta Tags (from Netlify version) -->
-  <title>Focus Pomodoro Timer - Free Online Pomodoro Timer for Deep Work</title>
-  <meta name="description" content="A beautifully designed, minimalist Pomodoro timer with dark mode, sounds and feedback. Stay focused and boost your productivity – free, no sign up.">
-  <meta name="keywords" content="pomodoro timer, focus timer, online pomodoro, productivity timer, study timer">
-  <meta name="author" content="Focus Pomadoro">
-
-  <!-- Canonical -->
-  <link rel="canonical" href="https://focus-pomadoro.com/">
-
-  <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://focus-pomadoro.com/">
-  <meta property="og:title" content="Focus Pomodoro Timer - Beautiful & Simple Time Management">
-  <meta property="og:description" content="Use a clean, distraction-free Pomodoro timer to stay focused and productive.">
-  <meta property="og:image" content="https://focus-pomadoro.com/og-image.png">
-
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:url" content="https://focus-pomadoro.com/">
-  <meta name="twitter:title" content="Focus Pomodoro Timer - Beautiful & Simple Time Management">
-  <meta name="twitter:description" content="Minimal Pomodoro timer with dark mode and sounds.">
-  <meta name="twitter:image" content="https://focus-pomadoro.com/og-image.png">
-
-  <!-- Favicon (inline tomato emoji, from Netlify version) -->
-  <link
-    rel="icon"
-    type="image/svg+xml"
-    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🍅</text></svg>"
-  >
-
-  <!-- PWA Manifest -->
-  <link rel="manifest" href="/manifest.json">
-
-  <!-- Theme Color -->
-  <meta name="theme-color" content="#ffffff">
-
-  <!-- App styles -->
-  <link rel="stylesheet" href="css/main.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f3ead7">
+  <meta name="description" content="A playful, cozy Pomodoro timer where focus keeps your desk safe from a tiny cat menace.">
+  <title>Cat Desk Menace — Focus timer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-  <header class="freemium-bar">
-    <div class="freemium-bar__left">
-      <div class="pill" id="planPill">Basic (free) plan</div>
-      <div class="user-badge" id="userBadge">Guest</div>
-    </div>
-    <div class="freemium-bar__right">
-      <form id="authForm" class="auth-form" aria-label="Save your email to personalize the workspace">
-        <input
-          id="authEmail"
-          type="email"
-          placeholder="name@email.com"
-          aria-label="Email address"
-          required
-        />
-        <button type="submit" class="secondary-btn">Save profile</button>
-      </form>
-      <button class="ghost-btn" type="button" data-auth-trigger data-auth-default-tab="login">Sign in</button>
-      <button id="logoutBtn" class="ghost-btn" type="button">Log out</button>
-      <button class="primary-btn" type="button" data-upgrade-trigger data-upgrade-label="Upgrade to Pro">
-        Upgrade to Pro
-      </button>
-    </div>
+  <div class="scanlines" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Cat Desk Menace home"><span class="brand-mark">M</span><span><b>CAT DESK MENACE</b><small>A tiny threat to productivity</small></span></a>
+    <nav aria-label="App navigation">
+      <button class="nav-btn active" data-view="timer">Timer</button>
+      <button class="nav-btn" data-view="stats">Stats</button>
+      <button class="coin-pill" id="shopButton"><span class="coin">C</span><b id="coinBalance">30</b><span>Catalog</span></button>
+      <button class="round-btn" id="scanlineToggle" aria-label="Toggle scanlines">▤</button>
+      <button class="round-btn" id="soundToggle" aria-label="Toggle ambient purr">♫</button>
+    </nav>
   </header>
-  <div id="freemiumNudge" class="freemium-toast" role="status" aria-live="polite"></div>
-  <div id="app" class="app">
-    <main class="layout">
-      <!-- Basic module container -->
-      <div id="basicModule" data-module="basic">
-        <section class="free-basic-banner" data-basic-only>
-          <div class="free-basic-banner__content">
-            <div>
-              <p class="free-basic-eyebrow">Basic mode</p>
-              <h2>Just the essentials to stay focused.</h2>
-              <p class="free-basic-copy">
-                Use the timer, quick tasks, and sound/settings in a distraction-free layout. Upgrade to Pro anytime
-                to unlock projects, archives, analytics, and cloud sync.
-              </p>
-            </div>
-            <div class="free-basic-actions">
-              <button class="primary-btn" type="button" data-upgrade-trigger>See Pro features</button>
-              <button class="ghost-btn" type="button" data-upgrade-trigger data-upgrade-label="Upgrade to Pro">
-                Upgrade to Pro
-              </button>
-            </div>
-          </div>
-        </section>
-      </div>
-      <!-- LEFT SIDEBAR: brand + projects + tasks -->
-      <aside class="layout-sidebar layout-sidebar-left">
-        <section class="sidebar-card">
-          <header class="sidebar-header brand-header">
-            <div class="brand-title">
-              <h1 class="logo">FOCUS</h1>
-              <span class="logo-sub">Pomodoro timer</span>
-            </div>
-          </header>
 
-          <div class="sidebar-controls-row">
-            <button id="darkModeToggle" class="icon-btn" aria-label="Toggle dark / light mode">
-              🌙
-            </button>
-
-            <div class="sound-wrapper">
-              <button id="soundToggle" class="icon-btn" aria-label="Sound settings">
-                🔔
-              </button>
-              <div id="soundSettings" class="sound-settings" role="dialog" aria-label="Sound settings">
-                <h3>Sound</h3>
-                <label class="sound-row">
-                  <span>Master</span>
-                  <input id="masterSoundToggle" type="checkbox" />
-                </label>
-                <label class="sound-row">
-                  <span>Tick</span>
-                  <input id="tickSoundToggle" type="checkbox" />
-                </label>
-                <label class="sound-row">
-                  <span>Happy tick (10s)</span>
-                  <input id="happyTickSoundToggle" type="checkbox" />
-                </label>
-                <label class="sound-row">
-                  <span>Every minute</span>
-                  <input id="minuteSoundToggle" type="checkbox" />
-                </label>
-                <label class="sound-row">
-                  <span>Every 5 minutes</span>
-                  <input id="fiveMinuteSoundToggle" type="checkbox" />
-                </label>
-                <label class="sound-row">
-                  <span>Completion</span>
-                  <input id="completionSoundToggle" type="checkbox" />
-                </label>
-              </div>
-            </div>
-
-            <button id="feedbackToggle" class="icon-btn" aria-label="Feedback">
-              💬
-            </button>
-
-            <div class="settings-wrapper" aria-label="Durations">
-              <button
-                class="icon-btn settings-icon"
-                type="button"
-                aria-label="Adjust timer durations"
-                tabindex="0"
-              >
-                ⚙️
-              </button>
-              <section class="settings-row">
-                <label>
-                  Work
-                  <input id="workDuration" type="number" min="1" max="60" value="25" /> min
-                </label>
-                <label>
-                  Short
-                  <input id="shortDuration" type="number" min="1" max="30" value="5" /> min
-                </label>
-                <label>
-                  Long
-                  <input id="longDuration" type="number" min="1" max="60" value="15" /> min
-                </label>
-              </section>
-            </div>
-          </div>
-        </section>
-
-        <!-- Tasks card moved here from the right sidebar -->
-        <section class="sidebar-card" data-section="tasks">
-          <header class="sidebar-header">
-            <h2>Tasks</h2>
-          </header>
-
-          <ul class="tasks-list" id="tasksList"></ul>
-
-          <div class="tasks-archived-toggle-row">
-            <button id="toggleTasksArchivedBtn" class="link-btn" type="button">
-              Show archived tasks
-            </button>
-          </div>
-
-          <div id="tasksArchivedSection" class="tasks-archived-section" data-tier="pro">
-            <ul class="tasks-list archived" id="archivedTasksList"></ul>
-          </div>
-        </section>
-      </aside>
-
-      <!-- CENTER: timer + today -->
-      <section class="layout-main">
-        <div class="now-working">
-          Working now on: <span id="currentProjectName">General</span>
+  <main>
+    <section id="timerView" class="timer-view">
+      <div class="intro">
+        <div><p class="eyebrow">CURRENT MISSION</p><h1>Keep it on the desk.</h1><p class="subhead">Focus until the bell. Don't let the menace win.</p></div>
+        <div class="session-switch" role="group" aria-label="Session type">
+          <button class="mode-btn active" data-mode="work">Focus <span>25 min</span></button>
+          <button class="mode-btn" data-mode="short">Catnap <span>5 min</span></button>
         </div>
+      </div>
 
-        <!-- Today summary in center -->
-        <section class="sidebar-card today-card">
-          <div class="daily-progress">
-            <div id="dailyGoalLabel" class="daily-goal-label">
-              0 / 4 Pomodoros (today)
-            </div>
-            <div class="daily-bar">
-              <div id="dailyBarFill" class="daily-bar-fill"></div>
-            </div>
-          </div>
-        </section>
-
-        <header class="header"></header>
-
-        <!-- Timer card -->
-        <section class="timer-card">
-          <div class="timer-card-header">
-            <button
-              id="zenModeToggle"
-              class="icon-btn"
-              aria-label="Toggle zen mode (hide sidebars)"
-              aria-pressed="false"
-              title="Enter zen mode"
-            >
-              🧘
-            </button>
-          </div>
-          <div class="timer-circle" id="timerCircle" role="timer" aria-label="Pomodoro timer">
-            <div class="tomato-crown" aria-hidden="true">
-              <span class="crown">👑</span>
-              <span class="tomato">🍅</span>
-            </div>
-
-            <svg class="progress-ring" width="320" height="320" aria-hidden="true">
-              <defs>
-                <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#f97316" />
-                  <stop offset="50%" stop-color="#facc15" />
-                  <stop offset="100%" stop-color="#ec4899" />
-                </linearGradient>
-              </defs>
-              <circle
-                class="background-circle"
-                cx="160"
-                cy="160"
-                r="140"
-                stroke-width="6"
-                fill="transparent"
-              ></circle>
-              <circle
-                class="progress-ring__circle"
-                cx="160"
-                cy="160"
-                r="140"
-                stroke-width="6"
-                fill="transparent"
-              ></circle>
-            </svg>
-
-            <div class="timer-content">
-              <!-- kept for JS, hidden in CSS if needed -->
-              <div id="modeLabel" class="mode-label" aria-hidden="true"></div>
-
-              <div id="timeDisplay" class="time-display" aria-live="polite" aria-atomic="true">
-                25:00
-              </div>
-
-              <button id="startBtn" class="primary-btn" aria-label="Start timer">▶</button>
-
-              <div id="controls" class="controls">
-                <button id="pauseBtn" type="button">
-                  ⏸ Pause
-                </button>
-                <button id="resetBtn" type="button">
-                  ↺ Reset
-                </button>
-              </div>
-
-              <div id="tomatoCelebration" class="tomato-celebration" aria-hidden="true">
-                🍅
-              </div>
-            </div>
-          </div>
-
-          <nav class="mode-selector" role="tablist" aria-label="Timer modes">
-            <button
-              class="mode-btn active"
-              data-mode="work"
-              role="tab"
-              aria-selected="true"
-            >
-              Work
-            </button>
-            <button class="mode-btn" data-mode="short" role="tab" aria-selected="false">
-              Short break
-            </button>
-            <button class="mode-btn" data-mode="long" role="tab" aria-selected="false">
-              Long break
-            </button>
-          </nav>
-        </section>
+      <section class="desk-card" id="deskCard" aria-label="Cat desk timer scene">
+        <div class="scene-wall">
+          <div class="sunbeam"></div><div class="poster">STAY<br>PAWSITIVE</div>
+          <div class="shelf"><span class="plant">♣</span><span class="book"></span><span class="book"></span></div>
+          <div class="zzz" aria-hidden="true">z <i>Z</i> z</div>
+        </div>
+        <div class="desk-surface">
+          <div class="danger-zone">DANGER ZONE</div>
+          <div class="keyboard" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="push-item item-glass" id="pushItem" aria-label="Glass of water"><div class="item-art" aria-hidden="true"></div></div>
+          <button class="pixel-cat" id="cat" aria-label="Poke the cat">
+            <span class="tail"></span><span class="body"></span><span class="head"><i class="ear left"></i><i class="ear right"></i><i class="eye left"></i><i class="eye right"></i><i class="nose"></i></span><span class="paw"></span><span class="cosmetic" id="catCosmetic" aria-hidden="true"></span>
+          </button>
+          <div class="laser-dot" id="laserDot"></div>
+        </div>
+        <div class="desk-front"><span class="drawer"></span><span class="sticker">NO CATS<br>ON DESK</span></div>
       </section>
 
-      <!-- Pro module container wraps all Pro-only UI for conditional rendering -->
-      <div id="proModule" data-module="pro" style="display: contents;">
-        <!-- Projects select + table + archive -->
-        <section class="projects-table-card" aria-label="Projects overview" data-tier="pro">
-          <header class="projects-table-header">
-            <h2>Projects</h2>
-          </header>
-
-          <div class="project-row combined-project-row">
-            <select id="projectSelect" class="project-select" aria-label="Select project"></select>
-          </div>
-
-          <div class="projects-table-wrapper">
-            <table class="projects-table">
-              <thead>
-                <tr>
-                  <th>Project</th>
-                  <th>Today</th>
-                  <th>Overall</th>
-                  <th>Goal (today)</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody id="projectsTableBody"></tbody>
-            </table>
-          </div>
-
-          <!-- archived projects toggle + table -->
-          <div class="archived-toggle-row">
-            <button id="toggleArchivedBtn" class="link-btn" type="button">
-              Show archived projects
-            </button>
-          </div>
-
-          <div id="archivedSection" class="archived-section" data-tier="pro">
-            <div class="projects-table-wrapper archived-wrapper">
-              <table class="projects-table">
-                <thead>
-                  <tr>
-                    <th>Project</th>
-                    <th>Today</th>
-                    <th>Overall</th>
-                    <th>Goal (today)</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="archivedProjectsTableBody"></tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        <!-- FULL-WIDTH PROGRESS GRAPH -->
-        <section class="layout-progress" data-tier="pro">
-          <div class="progress-graph-card">
-            <header class="progress-graph-header">
-              <h2>Progress</h2>
-              <span class="progress-graph-subtitle">
-                Focused minutes over the last 7 days
-              </span>
-            </header>
-
-            <div id="progressGraph" class="progress-graph"></div>
-          </div>
-        </section>
-
-        <section class="planning-grid" data-tier="pro">
-          <div class="planning-card">
-            <header class="planning-card__header">
-              <div>
-                <p class="eyebrow">Pro planning</p>
-                <h3>Goals</h3>
-              </div>
-            </header>
-
-            <form id="goalForm" class="stacked-form">
-              <div class="form-row">
-                <label class="sr-only" for="goalTitle">Goal title</label>
-                <input id="goalTitle" type="text" placeholder="Ship feature X" required />
-              </div>
-              <div class="form-grid">
-                <label>
-                  Type
-                  <select id="goalType">
-                    <option value="daily">Daily</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="long_term">Long term</option>
-                  </select>
-                </label>
-                <label>
-                  Target
-                  <input id="goalTarget" type="number" min="0" value="4" />
-                </label>
-                <label>
-                  Project
-                  <select id="goalProjectSelect"></select>
-                </label>
-              </div>
-              <button class="primary-btn" type="submit">Add goal</button>
-            </form>
-
-            <ul id="goalsList" class="goal-list"></ul>
-          </div>
-
-          <div class="planning-card">
-            <header class="planning-card__header">
-              <div>
-                <p class="eyebrow">Ideas inbox</p>
-                <h3>Capture ideas</h3>
-              </div>
-            </header>
-
-            <form id="ideaForm" class="stacked-form">
-              <label class="sr-only" for="ideaContent">Idea</label>
-              <input id="ideaContent" type="text" placeholder="Idea, experiment, or thought" required />
-
-              <div class="form-grid">
-                <label>
-                  Priority
-                  <select id="ideaPriority">
-                    <option value="low">Low</option>
-                    <option value="medium" selected>Medium</option>
-                    <option value="high">High</option>
-                  </select>
-                </label>
-                <label>
-                  Project
-                  <select id="ideaProjectSelect"></select>
-                </label>
-              </div>
-
-              <button class="secondary-btn" type="submit">Add idea</button>
-            </form>
-
-            <ul id="ideasList" class="idea-list"></ul>
-          </div>
-
-          <div class="planning-card analytics-card" data-section="analytics">
-            <header class="planning-card__header">
-              <div>
-                <p class="eyebrow">Analytics</p>
-                <h3>Momentum</h3>
-              </div>
-            </header>
-            <div id="analyticsSummary" class="analytics-summary"></div>
-            <ul id="analyticsProjectList" class="analytics-projects"></ul>
-          </div>
-
-          <div class="planning-card sync-card">
-            <header class="planning-card__header">
-              <div>
-                <p class="eyebrow">Cloud</p>
-                <h3>Sync & backup</h3>
-              </div>
-            </header>
-            <p class="muted">Sync projects, tasks, goals, ideas, and sessions to Supabase when signed in on Pro.</p>
-            <div class="sync-status" id="syncStatusLabel">Waiting to sync…</div>
-            <button class="primary-btn" type="button" id="syncNowBtn">Sync now</button>
-          </div>
-        </section>
-      </div>
-    </main>
-  </div>
-
-  <!-- Feedback modal -->
-  <div id="feedbackModal" class="modal">
-    <div class="modal-backdrop" data-close></div>
-    <div class="modal-panel">
-      <button class="modal-close" type="button" data-close aria-label="Close">✖</button>
-      <h2 class="modal-title">Feedback</h2>
-      <iframe
-        class="feedback-frame"
-        src="https://docs.google.com/forms/d/e/1FAIpQLSdpomgifmu-pJkPiOUODza9TynaUf3xhDb54rQyyjN0Jkqa-A/viewform?embedded=true"
-        loading="lazy"
-      >
-        Loading…
-      </iframe>
-    </div>
-  </div>
-
-  <div id="authModal" class="modal freemium-modal auth-modal">
-    <div class="modal-backdrop" data-close></div>
-    <div class="modal-panel">
-      <button class="modal-close" type="button" data-close aria-label="Close">✖</button>
-      <h2 class="modal-title">Sign in or create an account</h2>
-      <p class="modal-subtitle">Save your focus history, sync across devices, and unlock Pro when you’re ready.</p>
-
-      <div class="auth-tabs">
-        <button class="auth-tab is-active" type="button" data-auth-tab="login">Log in</button>
-        <button class="auth-tab" type="button" data-auth-tab="signup">Create account</button>
-        <button class="auth-tab" type="button" data-auth-tab="reset">Reset password</button>
-      </div>
-
-      <form id="loginForm" class="auth-form is-active" data-auth-view="login">
-        <label>
-          Email
-          <input name="email" type="email" autocomplete="email" required />
-        </label>
-        <label>
-          Password
-          <input name="password" type="password" autocomplete="current-password" required />
-        </label>
-        <div class="auth-actions-inline">
-          <button class="primary-btn" type="submit">Log in</button>
-          <button class="ghost-btn" type="button" data-auth-tab="reset">Need a reset?</button>
+      <section class="timer-panel">
+        <div class="status-line"><span class="status-dot"></span><span id="statusText">READY TO FOCUS</span></div>
+        <div class="time" id="timeDisplay" role="timer" aria-live="off">25:00</div>
+        <div class="progress-track"><div id="progressFill"></div></div>
+        <p id="nudgeText">The glass is safe... for now.</p>
+        <div class="controls">
+          <button class="start-btn" id="startBtn"><span>▶</span> Start focus</button>
+          <button class="laser-btn" id="pauseBtn" aria-label="Pause with laser pointer"><span class="laser-icon">⌁</span> Laser pause</button>
+          <button class="abort-btn" id="abortBtn">Abort</button>
         </div>
-      </form>
+      </section>
+      <div class="tip"><span>!</span><p><b>PRO TIP</b> Poke the cat. But not too many times.</p></div>
+    </section>
 
-      <form id="signupForm" class="auth-form" data-auth-view="signup">
-        <label>
-          Email
-          <input name="email" type="email" autocomplete="email" required />
-        </label>
-        <label>
-          Password
-          <input name="password" type="password" autocomplete="new-password" required />
-        </label>
-        <button class="primary-btn" type="submit">Create account</button>
-        <p class="auth-helper">We’ll send a confirmation link to verify your email.</p>
-      </form>
+    <section id="statsView" class="stats-view" hidden>
+      <p class="eyebrow">CHAOS VS. CALM</p><h1>Your desk report</h1>
+      <div class="metric-grid"><article><span>FOCUS TIME</span><b id="focusMetric">0m</b></article><article><span>DAY STREAK</span><b id="streakMetric">0</b></article><article><span>CATNIP COINS</span><b id="coinsMetric">30</b></article></div>
+      <div class="collection-grid"><article><h2>Saved shelf</h2><p>Items rescued from tiny paws.</p><div class="saved-shelf" id="savedShelf"></div></article><article><h2>Broken pile</h2><p>We can probably glue these.</p><div class="broken-pile" id="brokenPile">No casualties. Yet.</div></article></div>
+    </section>
+  </main>
 
-      <form id="resetForm" class="auth-form" data-auth-view="reset">
-        <label>
-          Email
-          <input name="email" type="email" autocomplete="email" required />
-        </label>
-        <button class="primary-btn" type="submit">Send reset link</button>
-        <p class="auth-helper">We’ll email you a password reset link. Use it to set a new password.</p>
-      </form>
-    </div>
+  <div class="modal" id="catalogModal" hidden>
+    <button class="modal-backdrop" data-close aria-label="Close catalog"></button>
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="catalogTitle">
+      <button class="modal-x" data-close>×</button><p class="eyebrow">THE CATALOG</p><h2 id="catalogTitle">Equip the chaos</h2><p>Spend catnip coins on temptations and tiny outfits.</p>
+      <div class="catalog-tabs"><button class="active" data-catalog="items">Items to push</button><button data-catalog="cosmetics">Cat cosmetics</button></div>
+      <div class="catalog-grid" id="catalogGrid"></div>
+    </section>
   </div>
-
-  <div id="upgradeModal" class="modal freemium-modal">
-    <div class="modal-backdrop" data-close></div>
-    <div class="modal-panel">
-      <button class="modal-close" type="button" data-close aria-label="Close">✖</button>
-      <h2 class="modal-title">Focus Pro</h2>
-      <p class="modal-subtitle">Unlock projects, archives, analytics, and cloud sync.</p>
-
-      <div class="pricing-grid">
-        <div class="pricing-card">
-          <h3>Basic</h3>
-          <p class="price">$0</p>
-          <ul>
-            <li>Pomodoro timer</li>
-            <li>Simple task list</li>
-            <li>Local storage</li>
-            <li>Light/dark mode</li>
-          </ul>
-          <button class="ghost-btn" data-close type="button">Stay on Basic</button>
-        </div>
-        <div class="pricing-card pricing-card--pro">
-          <h3>Pro</h3>
-          <p class="price">$4.99/mo</p>
-          <ul>
-            <li>Unlimited projects & goals</li>
-            <li>Archives & ideas inbox</li>
-            <li>Analytics & export</li>
-            <li>Cloud sync + real-time updates</li>
-          </ul>
-          <button class="primary-btn" type="button" data-activate-pro data-upgrade-trigger>
-            Start Pro (demo)
-          </button>
-          <button class="secondary-btn" type="button" data-checkout-plan="price_pro_monthly">
-            Checkout via Stripe
-          </button>
-          <button class="ghost-btn" type="button" data-billing-portal>
-            Manage billing
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- App logic -->
-  <script src="js/payments.js"></script>
-  <script type="module" src="js/app.js"></script>
-
-  <!-- JSON-LD Structured Data (from Netlify version) -->
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "Focus Pomodoro Timer",
-      "description": "A beautifully designed, minimalist Pomodoro timer to boost your productivity",
-      "applicationCategory": "ProductivityApplication",
-      "operatingSystem": "Any",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "5",
-        "ratingCount": "1"
-      }
-    }
-  </script>
+  <div class="toast" id="toast" role="status"></div>
+  <script type="module" src="js/menace-app.js"></script>
 </body>
 </html>
