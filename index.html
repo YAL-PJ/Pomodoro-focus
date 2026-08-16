@@ -12,16 +12,29 @@
   <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
+  <!-- Living background: slow drifting light, dust motes, night stars. -->
+  <div class="ambience" aria-hidden="true">
+    <span class="glow glow-a"></span>
+    <span class="glow glow-b"></span>
+    <span class="glow glow-c"></span>
+    <div class="stars" id="starField"></div>
+    <div class="dust" id="dustField"></div>
+  </div>
   <div class="scanlines" aria-hidden="true"></div>
+  <div class="fx-layer" id="fxLayer" aria-hidden="true"></div>
+  <div class="disco-ball" aria-hidden="true"><span></span></div>
+
   <header class="topbar">
-    <a class="brand" href="#" aria-label="Cat Desk Menace home"><span class="brand-mark">M</span><span><b>CAT DESK MENACE</b><small>A tiny threat to productivity</small></span></a>
+    <a class="brand" href="#" id="brandLink" aria-label="Cat Desk Menace home"><span class="brand-mark">M</span><span><b>CAT DESK MENACE</b><small>A tiny threat to productivity</small></span></a>
     <nav aria-label="App navigation">
       <button class="nav-btn active" data-view="timer">Timer</button>
       <button class="nav-btn" data-view="stats">Stats</button>
-      <button class="coin-pill" id="shopButton"><span class="coin">C</span><b id="coinBalance">30</b><span>Catalog</span></button>
-      <button class="round-btn" id="scanlineToggle" aria-label="Toggle scanlines">▤</button>
-      <button class="round-btn" id="soundToggle" aria-label="Toggle ambient purr">♫</button>
+      <button class="coin-pill" id="shopButton" title="Open the catalog (C)"><span class="coin">C</span><b id="coinBalance">30</b><span>Catalog</span></button>
+      <button class="round-btn" id="themeToggle" aria-label="Change time of day" title="Time of day">◐</button>
+      <button class="round-btn" id="scanlineToggle" aria-label="Toggle scanlines" title="Retro scanlines">▤</button>
+      <button class="round-btn" id="soundToggle" aria-label="Toggle ambient purr" title="Ambient purr">♫</button>
     </nav>
+    <div class="topbar-progress" aria-hidden="true"><span id="topProgress"></span></div>
   </header>
 
   <main>
@@ -29,6 +42,7 @@
       <div class="intro">
         <div><p class="eyebrow">CURRENT MISSION</p><h1>Keep it on the desk.</h1><p class="subhead">Focus until the bell. Don't let the menace win.</p></div>
         <div class="session-switch" role="group" aria-label="Session type">
+          <span class="switch-glider" aria-hidden="true"></span>
           <button class="mode-btn active" data-mode="work">Focus <span>25 min</span></button>
           <button class="mode-btn" data-mode="short">Catnap <span>5 min</span></button>
         </div>
@@ -36,8 +50,13 @@
 
       <section class="desk-card" id="deskCard" aria-label="Cat desk timer scene">
         <div class="scene-wall">
-          <div class="sunbeam"></div><div class="poster">STAY<br>PAWSITIVE</div>
-          <div class="shelf"><span class="plant">♣</span><span class="book"></span><span class="book"></span></div>
+          <div class="window" aria-hidden="true">
+            <div class="sky"><span class="orb"></span><span class="cloud cloud-1"></span><span class="cloud cloud-2"></span><span class="window-stars"></span></div>
+            <span class="window-bar-v"></span><span class="window-bar-h"></span>
+          </div>
+          <div class="sunbeam"></div>
+          <button class="poster" id="poster" aria-label="Motivational poster"><span id="posterText">STAY<br>PAWSITIVE</span></button>
+          <div class="shelf"><button class="plant" id="plant" aria-label="Little desk plant">♣</button><span class="book"></span><span class="book"></span></div>
           <div class="zzz" aria-hidden="true">z <i>Z</i> z</div>
         </div>
         <div class="desk-surface">
@@ -45,7 +64,7 @@
           <div class="keyboard" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
           <div class="push-item item-glass" id="pushItem" aria-label="Glass of water"><div class="item-art" aria-hidden="true"></div></div>
           <button class="pixel-cat" id="cat" aria-label="Poke the cat">
-            <span class="tail"></span><span class="body"></span><span class="head"><i class="ear left"></i><i class="ear right"></i><i class="eye left"></i><i class="eye right"></i><i class="nose"></i></span><span class="paw"></span><span class="cosmetic" id="catCosmetic" aria-hidden="true"></span>
+            <span class="tail"></span><span class="body"></span><span class="head"><i class="ear left"></i><i class="ear right"></i><i class="eye left"></i><i class="eye right"></i><i class="nose"></i><i class="shades"></i></span><span class="paw"></span><span class="cosmetic" id="catCosmetic" aria-hidden="true"></span>
           </button>
           <div class="laser-dot" id="laserDot"></div>
         </div>
@@ -55,13 +74,13 @@
       <section class="timer-panel">
         <div class="status-line"><span class="status-dot"></span><span id="statusText">READY TO FOCUS</span></div>
         <div class="time" id="timeDisplay" role="timer" aria-live="off">25:00</div>
-        <div class="progress-track"><div id="progressFill"></div></div>
+        <div class="progress-track"><div id="progressFill"></div><span class="progress-paw" id="progressPaw" aria-hidden="true">🐾</span></div>
         <p id="nudgeText">The glass is safe... for now.</p>
         <div class="controls">
-          <button class="start-btn" id="startBtn"><span>▶</span> Start focus</button>
-          <button class="laser-btn" id="pauseBtn" aria-label="Pause with laser pointer"><span class="laser-icon">⌁</span> Laser pause</button>
-          <button class="abort-btn" id="abortBtn">Abort</button>
+          <button class="start-btn" id="startBtn"><span class="btn-icon">▶</span> <span class="btn-label">Start focus</span></button>
+          <button class="ghost-btn" id="abortBtn">Reset</button>
         </div>
+        <p class="hint-strip"><kbd>Space</kbd> start / pause <i>·</i> <kbd>R</kbd> reset <i>·</i> <kbd>C</kbd> catalog <i>·</i> <kbd>S</kbd> stats</p>
       </section>
       <div class="tip"><span>!</span><p><b>PRO TIP</b> Poke the cat. But not too many times.</p></div>
     </section>
@@ -70,6 +89,7 @@
       <p class="eyebrow">CHAOS VS. CALM</p><h1>Your desk report</h1>
       <div class="metric-grid"><article><span>FOCUS TIME</span><b id="focusMetric">0m</b></article><article><span>DAY STREAK</span><b id="streakMetric">0</b></article><article><span>CATNIP COINS</span><b id="coinsMetric">30</b></article></div>
       <div class="collection-grid"><article><h2>Saved shelf</h2><p>Items rescued from tiny paws.</p><div class="saved-shelf" id="savedShelf"></div></article><article><h2>Broken pile</h2><p>We can probably glue these.</p><div class="broken-pile" id="brokenPile">No casualties. Yet.</div></article></div>
+      <article class="secrets-card"><h2>Secrets <b id="secretCount">0/6</b></h2><p>Six hidden things live on this desk. Poke around.</p><div class="secret-grid" id="secretGrid"></div></article>
     </section>
   </main>
 

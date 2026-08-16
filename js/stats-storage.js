@@ -13,7 +13,8 @@ function createDefaults() {
     selected: "glass",
     cosmetics: [],
     equippedCosmetic: null,
-    settings: { ambient: false, scanlines: false },
+    secrets: [],
+    settings: { ambient: false, scanlines: false, theme: "auto" },
     lastCompleted: null
   };
 }
@@ -31,6 +32,7 @@ export class StatsStorage {
         saved: Array.isArray(saved.saved) ? saved.saved : defaults.saved,
         unlocked: Array.isArray(saved.unlocked) ? saved.unlocked : defaults.unlocked,
         cosmetics: Array.isArray(saved.cosmetics) ? saved.cosmetics : defaults.cosmetics,
+        secrets: Array.isArray(saved.secrets) ? saved.secrets : defaults.secrets,
         settings: { ...defaults.settings, ...(saved.settings || {}) }
       };
     } catch {
@@ -53,6 +55,14 @@ export class StatsStorage {
     state.lastCompleted = day;
     this.save(state);
     return state;
+  }
+
+  /** Returns true only the first time a given secret is discovered. */
+  unlockSecret(state, id) {
+    if (state.secrets.includes(id)) return false;
+    state.secrets.push(id);
+    this.save(state);
+    return true;
   }
 
   recordBreakage(state) {
