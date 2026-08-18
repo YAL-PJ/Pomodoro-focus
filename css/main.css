@@ -46,6 +46,13 @@
   --beam: rgba(255, 246, 206, .34);
   --star-opacity: 0;
 
+  /* Solid equivalents of the color-mix() tints below. Browsers without
+     color-mix (Safari < 16.2) drop that declaration and land on these. */
+  --tint-terra: #f4dfd5;
+  --tint-ink: #e8dcc9;
+  --tint-ink-soft: #eee1cc;
+  --tint-green: #e4e9e1;
+
   /* atmosphere */
   --glow-1: rgba(255, 216, 150, .55);
   --glow-2: rgba(189, 96, 73, .16);
@@ -119,6 +126,10 @@ html[data-theme="night"] {
   --cat-eye-glow: 0 0 7px rgba(255, 226, 122, .9);
   --pause-bg: #574a6b;
   --pause-fg: #f8f2ff;
+  --tint-terra: #4a3128;
+  --tint-ink: #3a3346;
+  --tint-ink-soft: #342e40;
+  --tint-green: #2f3b34;
   --sky-top: #101a33;
   --sky-bottom: #2a3f66;
   --orb: #eef3ff;
@@ -334,7 +345,7 @@ body.scanlines-on .scanlines { opacity: 1; }
   border-radius: 50%;
   background: var(--yellow);
   color: #79551d;
-  font: 700 10px Silkscreen;
+  font: 700 10px Silkscreen, "Courier New", monospace;
   box-shadow: 0 0 14px rgba(229, 185, 92, .8);
   animation: fx-coin-fly var(--dur, 900ms) cubic-bezier(.5, -0.2, .3, 1) forwards;
 }
@@ -370,7 +381,9 @@ body.scanlines-on .scanlines { opacity: 1; }
   justify-content: space-between;
   padding: 0 clamp(20px, 5vw, 72px);
   border-bottom: 2px solid var(--line);
+  background: var(--paper);
   background: color-mix(in srgb, var(--paper) 86%, transparent);
+  -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
   transition: background .9s ease, border-color .9s ease;
 }
@@ -409,7 +422,7 @@ body.scanlines-on .scanlines { opacity: 1; }
   height: 39px;
   background: var(--terra);
   color: #fff;
-  font: 700 22px Silkscreen;
+  font: 700 22px Silkscreen, "Courier New", monospace;
   clip-path: polygon(10% 20%, 25% 20%, 25% 0, 42% 18%, 62% 18%, 80% 0, 80% 24%, 95% 34%, 95% 90%, 5% 90%, 5% 34%);
   transition: transform .35s var(--ease-pop);
 }
@@ -418,7 +431,7 @@ body.scanlines-on .scanlines { opacity: 1; }
 
 .brand b,
 .eyebrow {
-  font: 700 12px Silkscreen;
+  font: 700 12px Silkscreen, "Courier New", monospace;
   letter-spacing: .08em;
 }
 
@@ -458,6 +471,7 @@ body.scanlines-on .scanlines { opacity: 1; }
 
 .nav-btn.active {
   color: var(--terra);
+  background: var(--tint-terra);
   background: color-mix(in srgb, var(--terra) 16%, transparent);
 }
 
@@ -488,7 +502,7 @@ body.scanlines-on .scanlines { opacity: 1; }
   border-radius: 50%;
   background: var(--yellow);
   color: #79551d;
-  font: 700 10px Silkscreen;
+  font: 700 10px Silkscreen, "Courier New", monospace;
 }
 
 .coin-pill.bump { animation: coin-bump .5s var(--ease-pop); }
@@ -512,7 +526,7 @@ body.scanlines-on .scanlines { opacity: 1; }
 }
 
 h1 {
-  font: 700 clamp(25px, 4vw, 38px) Silkscreen;
+  font: 700 clamp(25px, 4vw, 38px) Silkscreen, "Courier New", monospace;
   margin: 0 0 9px;
   letter-spacing: -.04em;
 }
@@ -527,6 +541,7 @@ h1 {
   position: relative;
   display: flex;
   padding: 5px;
+  background: var(--tint-ink);
   background: color-mix(in srgb, var(--ink) 10%, var(--cream));
   border-radius: 10px;
 }
@@ -576,6 +591,7 @@ h1 {
   border-radius: 9px;
   overflow: hidden;
   box-shadow: var(--shadow);
+  background: var(--wall);
   background: color-mix(in srgb, var(--wall) 90%, var(--cream));
   transition: box-shadow .4s ease, transform .4s var(--ease-pop);
 }
@@ -695,7 +711,7 @@ h1 {
   background: #f4d38f;
   color: #3c2a1e;
   box-shadow: 5px 5px 0 #75503d;
-  font: 700 11px/1.5 Silkscreen;
+  font: 700 11px/1.5 Silkscreen, "Courier New", monospace;
   text-align: center;
   transform: rotate(-2deg);
   cursor: pointer;
@@ -775,7 +791,7 @@ h1 {
   padding: 5px;
   border: 2px dashed #834334;
   color: #834334;
-  font: 700 9px Silkscreen;
+  font: 700 9px Silkscreen, "Courier New", monospace;
   opacity: .65;
   transition: opacity .4s ease, transform .4s ease;
 }
@@ -826,7 +842,7 @@ h1 {
   border: 2px solid #5d3b30;
   color: #3c2a1e;
   transform: rotate(4deg);
-  font: 700 7px/1.3 Silkscreen;
+  font: 700 7px/1.3 Silkscreen, "Courier New", monospace;
   text-align: center;
 }
 
@@ -897,7 +913,7 @@ h1 {
   left: 55%;
   bottom: 13px;
   color: var(--green);
-  font: 700 20px Silkscreen;
+  font: 700 20px Silkscreen, "Courier New", monospace;
   animation: float 2s infinite;
 }
 
@@ -1211,7 +1227,7 @@ body.disco .shades {
 }
 
 .status-line {
-  font: 700 10px Silkscreen;
+  font: 700 10px Silkscreen, "Courier New", monospace;
   color: var(--green);
   letter-spacing: .08em;
 }
@@ -1238,7 +1254,7 @@ body.disco .shades {
 }
 
 .time {
-  font: 700 clamp(52px, 8vw, 76px) Silkscreen;
+  font: 700 clamp(52px, 8vw, 76px) Silkscreen, "Courier New", monospace;
   line-height: 1.15;
   letter-spacing: -.08em;
   font-variant-numeric: tabular-nums;
@@ -1266,6 +1282,7 @@ body.disco .shades {
   max-width: 380px;
   height: 7px;
   margin: 16px auto;
+  background: var(--tint-ink);
   background: color-mix(in srgb, var(--ink) 14%, var(--cream));
   border-radius: 10px;
 }
@@ -1381,7 +1398,7 @@ kbd {
   border-bottom-width: 2px;
   border-radius: 4px;
   background: var(--paper);
-  font: 700 10px Silkscreen;
+  font: 700 10px Silkscreen, "Courier New", monospace;
   color: var(--ink);
 }
 
@@ -1406,7 +1423,7 @@ kbd {
 }
 
 .tip b {
-  font: 700 9px Silkscreen;
+  font: 700 9px Silkscreen, "Courier New", monospace;
   color: var(--ink);
   margin-right: 7px;
 }
@@ -1437,14 +1454,14 @@ kbd {
 .collection-grid article:hover { transform: translateY(-4px); }
 
 .metric-grid span {
-  font: 700 10px Silkscreen;
+  font: 700 10px Silkscreen, "Courier New", monospace;
   color: var(--muted);
 }
 
 .metric-grid b {
   display: block;
   margin-top: 12px;
-  font: 700 30px Silkscreen;
+  font: 700 30px Silkscreen, "Courier New", monospace;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1456,7 +1473,7 @@ kbd {
 .collection-grid h2,
 .modal-card h2,
 .secrets-card h2 {
-  font: 700 19px Silkscreen;
+  font: 700 19px Silkscreen, "Courier New", monospace;
   margin: 0;
 }
 
@@ -1524,6 +1541,7 @@ kbd {
 .secret-chip.found {
   border-style: solid;
   border-color: var(--green);
+  background: var(--tint-green);
   background: color-mix(in srgb, var(--green) 12%, transparent);
   color: var(--ink);
   font-weight: 700;
@@ -1637,6 +1655,7 @@ kbd {
   display: grid;
   place-items: center;
   height: 70px;
+  background: var(--tint-ink-soft);
   background: color-mix(in srgb, var(--ink) 8%, var(--cream));
   font-size: 38px;
   transition: transform .3s var(--ease-pop);
@@ -1746,10 +1765,11 @@ body.disco .disco-ball {
   transform: translateY(150px);
 }
 
-/* Fireflies drift in during the small hours. */
+/* Fireflies drift in during the small hours. They live inside .ambience so its
+   overflow:hidden clips them — not the body's overflow-x, which older Safari
+   ignores. */
 .firefly {
-  position: fixed;
-  z-index: 5;
+  position: absolute;
   width: 6px;
   height: 6px;
   border-radius: 50%;

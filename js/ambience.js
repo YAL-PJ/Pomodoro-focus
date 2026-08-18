@@ -106,7 +106,8 @@ export class Ambience {
   }
 
   syncFireflies() {
-    const wanted = this.isNight && motionAllowed() ? 5 : 0;
+    const host = document.querySelector(".ambience");
+    const wanted = host && this.isNight && motionAllowed() ? 5 : 0;
     while (this.fireflies.length > wanted) this.fireflies.pop().remove();
     while (this.fireflies.length < wanted) {
       const fly = document.createElement("span");
@@ -115,7 +116,7 @@ export class Ambience {
       fly.style.top = `${45 + Math.random() * 45}%`;
       fly.style.animationDuration = `${22 + Math.random() * 18}s, ${1.8 + Math.random() * 2}s`;
       fly.style.animationDelay = `${-Math.random() * 20}s, ${-Math.random() * 3}s`;
-      document.body.appendChild(fly);
+      host.appendChild(fly);
       this.fireflies.push(fly);
     }
   }

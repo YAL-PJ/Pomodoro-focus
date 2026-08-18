@@ -1,20 +1,23 @@
 {
-  "name": "Focus Pomodoro Timer",
-  "short_name": "Focus",
-  "description": "A beautiful Pomodoro timer to boost your productivity",
+  "name": "Cat Desk Menace — Focus timer",
+  "short_name": "Cat Desk",
+  "description": "A playful, cozy Pomodoro timer where focus keeps your desk safe from a tiny cat menace.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
-  "orientation": "portrait-primary",
+  "background_color": "#f5eddd",
+  "theme_color": "#f3ead7",
+  "orientation": "any",
   "icons": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🍅</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🐱</text></svg>",
       "sizes": "512x512",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ],
-  "categories": ["productivity", "utilities"],
+  "categories": [
+    "productivity",
+    "utilities"
+  ],
   "screenshots": []
 }
