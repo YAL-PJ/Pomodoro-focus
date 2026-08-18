@@ -23,6 +23,19 @@ const storage = new StatsStorage();
 const sound = new SoundManager();
 const state = storage.load();
 
+// Nodes touched on every tick, resolved once.
+const dom = {
+  time: $("#timeDisplay"),
+  progressFill: $("#progressFill"),
+  status: $("#statusText"),
+  nudge: $("#nudgeText"),
+  panel: $(".timer-panel"),
+  startBtn: $("#startBtn"),
+  startLabel: $("#startBtn .btn-label"),
+  startIcon: $("#startBtn .btn-icon"),
+  ghostBtn: $("#abortBtn")
+};
+
 const stage = new DeskStage($("#deskCard"), $("#cat"), $("#pushItem"));
 const timer = new TimerEngine(renderTimer, completeSession);
 const ambience = new Ambience();
@@ -57,7 +70,7 @@ function nudgeFor({ mode, running, left, total, progress }) {
 
 /** The primary button is the whole control scheme, so it must never lie. */
 function renderPrimaryButton({ mode, running, left, total }) {
-  const button = $("#startBtn");
+  const button = dom.startBtn;
   const paused = !running && left < total;
   const label = running
     ? "Pause"
@@ -68,14 +81,14 @@ function renderPrimaryButton({ mode, running, left, total }) {
 
   if (button.dataset.label !== label) {
     button.dataset.label = label;
-    button.querySelector(".btn-label").textContent = label;
-    button.querySelector(".btn-icon").textContent = icon;
+    dom.startLabel.textContent = label;
+    dom.startIcon.textContent = icon;
   }
   button.classList.toggle("is-running", running);
   button.title = running ? "Pause with the laser pointer (Space)" : "Space";
 
   // Abandoning a live work session is what breaks things — say so plainly.
-  const ghost = $("#abortBtn");
+  const ghost = dom.ghostBtn;
   const abandoning = mode === "work" && left < total;
   ghost.textContent = abandoning ? "Give up" : "Reset";
   ghost.classList.toggle("danger", abandoning);
@@ -87,18 +100,17 @@ function renderTimer(snapshot) {
 
   if (left !== lastRenderedSeconds) {
     lastRenderedSeconds = left;
-    const display = $("#timeDisplay");
-    display.textContent = format(left);
-    display.classList.remove("tick");
-    void display.offsetWidth;
-    display.classList.add("tick");
+    dom.time.textContent = format(left);
+    dom.time.classList.remove("tick");
+    void dom.time.offsetWidth;
+    dom.time.classList.add("tick");
   }
 
-  $("#timeDisplay").classList.toggle("urgent", mode === "work" && running && left <= 60);
-  $("#progressFill").style.width = `${progress * 100}%`;
-  $("#statusText").textContent = statusFor(snapshot);
-  $("#nudgeText").textContent = nudgeFor(snapshot);
-  $(".timer-panel").classList.toggle("is-running", running);
+  dom.time.classList.toggle("urgent", mode === "work" && running && left <= 60);
+  dom.progressFill.style.width = `${progress * 100}%`;
+  dom.status.textContent = statusFor(snapshot);
+  dom.nudge.textContent = nudgeFor(snapshot);
+  dom.panel.classList.toggle("is-running", running);
 
   ambience.setProgress(progress);
   renderPrimaryButton(snapshot);

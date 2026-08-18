@@ -155,7 +155,12 @@ body {
 }
 
 /* Three slow-drifting light blobs. They never move fast enough to distract,
-   but the page is never quite the same twice. */
+   but the page is never quite the same twice.
+
+   The soft edge comes from a radial gradient, NOT filter: blur(). A blurred
+   layer this large has to be re-rasterised on every frame of the drift, which
+   measured at ~16fps; a gradient is painted once and the drift is pure
+   compositor work. Same look, ~60fps. */
 .ambience {
   position: fixed;
   inset: 0;
@@ -167,9 +172,8 @@ body {
 .glow {
   position: absolute;
   border-radius: 50%;
-  filter: blur(70px);
   opacity: .9;
-  transition: background 1.2s ease;
+  will-change: transform;
 }
 
 .glow-a {
@@ -177,7 +181,7 @@ body {
   height: 46vw;
   top: -12vw;
   left: -8vw;
-  background: var(--glow-1);
+  background: radial-gradient(circle closest-side, var(--glow-1), transparent);
   animation: drift-a 34s ease-in-out infinite;
 }
 
@@ -186,7 +190,7 @@ body {
   height: 38vw;
   bottom: -14vw;
   right: -6vw;
-  background: var(--glow-2);
+  background: radial-gradient(circle closest-side, var(--glow-2), transparent);
   animation: drift-b 42s ease-in-out infinite;
 }
 
@@ -195,7 +199,7 @@ body {
   height: 30vw;
   top: 45%;
   left: 55%;
-  background: var(--glow-3);
+  background: radial-gradient(circle closest-side, var(--glow-3), transparent);
   animation: drift-c 52s ease-in-out infinite;
 }
 
@@ -252,6 +256,12 @@ html[data-theme="night"] .dust span {
   background: #fff;
   animation: twinkle ease-in-out infinite alternate;
 }
+
+/* Stars are invisible before dusk, so don't burn 60 animations on them. */
+html[data-theme="dawn"] .stars span,
+html[data-theme="day"] .stars span,
+html[data-theme="dawn"] .window-stars,
+html[data-theme="day"] .window-stars { animation: none; }
 
 @keyframes twinkle {
   from { opacity: .15; transform: scale(.7); }
@@ -1707,6 +1717,8 @@ body.disco .desk-card { animation: disco-bob .6s ease-in-out infinite; }
   transition: opacity .4s ease, transform .8s var(--ease-pop);
 }
 
+body:not(.disco) .disco-ball span { animation: none; }
+
 .disco-ball span {
   display: block;
   width: 100%;
@@ -1797,7 +1809,6 @@ body.disco .disco-ball {
   .secret-grid { grid-template-columns: repeat(3, 1fr); }
   .catalog-grid { grid-template-columns: 1fr 1fr; }
   .brand b { font-size: 10px; }
-  .glow { filter: blur(50px); }
 }
 
 /* 14. Reduced motion ------------------------------------------------------ */

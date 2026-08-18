@@ -48,14 +48,27 @@ export class DeskStage {
     };
     this.blinkTimer = setTimeout(blink, 2000);
 
-    document.addEventListener("pointermove", event => {
+    // Pointer events fire far faster than the screen refreshes, and reading a
+    // rect forces layout. Coalesce to one read + one write per frame.
+    let pointer = null;
+    let queued = false;
+    const clamp = value => Math.max(-1, Math.min(1, value * 3));
+
+    const trackPointer = () => {
+      queued = false;
       const box = this.cat.getBoundingClientRect();
       if (!box.width) return;
-      const x = (event.clientX - (box.left + box.width / 2)) / innerWidth;
-      const y = (event.clientY - (box.top + box.height / 2)) / innerHeight;
-      const clamp = value => Math.max(-1, Math.min(1, value * 3));
+      const x = (pointer.x - (box.left + box.width / 2)) / innerWidth;
+      const y = (pointer.y - (box.top + box.height / 2)) / innerHeight;
       this.cat.style.setProperty("--pointer-x", clamp(x).toFixed(2));
       this.cat.style.setProperty("--pointer-y", clamp(y).toFixed(2));
+    };
+
+    document.addEventListener("pointermove", event => {
+      pointer = { x: event.clientX, y: event.clientY };
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(trackPointer);
     }, { passive: true });
   }
 
