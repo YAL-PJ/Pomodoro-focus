@@ -16,6 +16,16 @@ The repository is currently an experimental integration snapshot. Its individual
 - Basic/Pro UI gating with upgrade, authentication, feedback, planning, analytics, archive, and sync interfaces
 - Supabase schema and browser clients for email authentication, row-level user isolation, and data synchronization
 
+## Interface and motion layer
+
+The page that ships (`index.html`) boots `js/menace-app.js`: the Cat Desk Menace timer, where a focus session is framed as keeping a tiny cat from pushing something off a desk.
+
+- **`js/menace-app.js`** — wiring only. One primary button that always states its next action (Start focus → Pause → Resume), one ghost button that reads "Reset" until abandoning would actually cost you something, and keyboard shortcuts (`Space`, `R`, `C`, `S`, `Esc`).
+- **`js/ambience.js`** — time-of-day palettes (`dawn`/`day`/`dusk`/`night`, automatic from the clock or forced from the topbar), plus the drifting dust, stars, and night fireflies. Session progress is published as a `--progress` CSS variable, so the sun in the window climbs and the sunbeam tilts as the session runs.
+- **`js/desk-stage.js`** — keeps the cat idling: random blinks, eyes that follow the pointer, a tail that quickens while the timer runs, and a visible "tense" tell over the last 18% of a session.
+- **`js/fx.js`** — self-cleaning particles: confetti, floating emoji, coins that arc into the wallet, click rings, and number roll-ups. Every effect no-ops under `prefers-reduced-motion`.
+- **`js/easter-eggs.js`** — six discoverable secrets, listed as locked slots in the Stats view so hunting them is a collection rather than a rumour. They are cosmetic only and never touch the timer or your stats.
+
 ## Technical Highlights
 
 - **Separated timer domain logic.** `PomodoroTimer` owns countdown state and exposes tick, mode-change, and completion subscriptions. DOM updates and sound behavior sit in controller modules, keeping timekeeping independent from presentation.
